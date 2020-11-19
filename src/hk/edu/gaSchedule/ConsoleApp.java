@@ -7,7 +7,8 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 
 import hk.edu.gaSchedule.algorithm.Configuration;
-import hk.edu.gaSchedule.algorithm.GeneticAlgorithm;
+// import hk.edu.gaSchedule.algorithm.GeneticAlgorithm;
+import hk.edu.gaSchedule.algorithm.NsgaII;
 import hk.edu.gaSchedule.algorithm.Schedule;
 
 public class ConsoleApp
@@ -15,7 +16,7 @@ public class ConsoleApp
     public static void main(String[] args)
     {
     	try {
-	        System.out.println(String.format("GaSchedule Version %s . Making a Class Schedule Using a Genetic Algorithm.", "1.0.0"));
+	        System.out.println(String.format("GaSchedule Version %s . Making a Class Schedule Using a Genetic Algorithm (NSGA-II).", "1.1.0"));
 	        System.out.println("Copyright (C) 2020 Miller Cy Chan.");
 	
 	        final String FILE_NAME = args.length > 0 ? args[0] : "GaSchedule.json";
@@ -25,11 +26,13 @@ public class ConsoleApp
 	        File targetFile = new File(System.getProperty("user.dir") + "/" + FILE_NAME);
 	        if(!targetFile.exists())
 	        	targetFile = new File(new File(ConsoleApp.class.getResource("/").toURI()).getParentFile() + "/" + FILE_NAME);
-	        configuration.parseFile(targetFile.getAbsolutePath());
+	        configuration.parseFile(targetFile.getAbsolutePath());	        
 	        
-	        GeneticAlgorithm<Schedule> ga = new GeneticAlgorithm<>(new Schedule(configuration), 2, 2, 80, 3);
-	        ga.run(9999, 0.999);
-	        String htmlResult = HtmlOutput.getResult(ga.getResult());
+	        // GeneticAlgorithm<Schedule> alg = new GeneticAlgorithm<>(new Schedule(configuration), 2, 2, 80, 3);
+	        NsgaII<Schedule> alg = new NsgaII<>(new Schedule(configuration), 2, 2, 80, 3);
+	        alg.run(9999, 0.999);
+	        
+	        String htmlResult = HtmlOutput.getResult(alg.getResult());
 	
 	        String tempFilePath = System.getProperty("java.io.tmpdir") + FILE_NAME.replace(".json", ".htm");
 	        try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempFilePath))))
