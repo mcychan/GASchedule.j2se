@@ -17,7 +17,7 @@ If you are using Java, you would call GASchedule as follows:
       targetFile = new File(new File(ConsoleApp.class.getResource("/").toURI()).getParentFile() + FILE_NAME);
     configuration.parseFile(targetFile.getAbsolutePath());
 
-    GeneticAlgorithm<Schedule> ga = new GeneticAlgorithm<>(new Schedule(configuration), 2, 2, 80, 3);
-    ga.run(9999, 0.999);
-    String htmlResult = HtmlOutput.getResult(ga.getResult());
+    NsgaII<Schedule> alg = new NsgaII<>(new Schedule(configuration), 2, 2, 80, 3);
+	alg.run(9999, 0.999);
+    String htmlResult = HtmlOutput.getResult(alg.getResult());
 ```
