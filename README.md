@@ -18,6 +18,6 @@ If you are using Java, you would call GASchedule as follows:
     configuration.parseFile(targetFile.getAbsolutePath());
 
     NsgaII<Schedule> alg = new NsgaII<>(new Schedule(configuration), 2, 2, 80, 3);
-	alg.run(9999, 0.999);
+    alg.run(9999, 0.999);
     String htmlResult = HtmlOutput.getResult(alg.getResult());
 ```
