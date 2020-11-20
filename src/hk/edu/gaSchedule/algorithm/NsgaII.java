@@ -72,7 +72,6 @@ public class NsgaII<T extends Chromosome<T> >
 		
 		for(int p = 0; p < s.length; ++p) {
 			s[p] = new HashSet<Integer>();
-			n[p] = 0;
 			for(int q = 0; q < s.length; ++q) {
 				int diff = Float.compare(totalChromosome.get(p).getFitness(), totalChromosome.get(q).getFitness());
 				if (diff > 0)
@@ -92,8 +91,7 @@ public class NsgaII<T extends Chromosome<T> >
 			Set<Integer> Q = new HashSet<>();
 			for(int p : front.get(i)) {
 				for(int q : s[p]) {
-					--n[q];
-					if (n[q] == 0) {
+					if (--n[q] == 0) {
 						rank[q] = i + 1;
 						Q.add(q);
 					}
