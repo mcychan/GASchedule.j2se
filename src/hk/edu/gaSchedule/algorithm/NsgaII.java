@@ -222,6 +222,7 @@ public class NsgaII<T extends Chromosome<T> >
 			
 			/******************* selection *****************/
 			population = selection(front, totalChromosome);
+			_populationSize = population.size();
 			
 			/******************* comparison *****************/
 			if(currentGeneration == 0)
