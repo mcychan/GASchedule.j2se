@@ -116,8 +116,8 @@ public class NsgaII<T extends Chromosome<T> >
 		Map<Integer, Float> obj = new HashMap<>();
 		for(int m : front)
 			obj.put(m, totalChromosome.get(m).getFitness());
-		Integer[] sortedKeys = obj.entrySet().stream().
-				sorted(Entry.comparingByValue()).map(e -> e.getKey()).toArray(Integer[]::new);
+		Integer[] sortedKeys = obj.entrySet().stream()
+			.sorted(Entry.comparingByValue()).map(e -> e.getKey()).toArray(Integer[]::new);
 		distance.put(sortedKeys[front.size() - 1], Float.MAX_VALUE);
 		distance.put(sortedKeys[0], Float.MAX_VALUE);
 		
@@ -126,8 +126,8 @@ public class NsgaII<T extends Chromosome<T> >
 			if(values.size() != 1)
 				distance.put(sortedKeys[i], distance.get(sortedKeys[i]) + (obj.get(sortedKeys[i + 1]) - obj.get(sortedKeys[i - 1])) / (obj.get(sortedKeys[front.size() - 1]) - obj.get(sortedKeys[0])));
 		}
-		return distance.entrySet().stream().
-				sorted(Entry.comparingByValue()).map(e -> e.getKey())
+		return distance.entrySet().stream()
+				.sorted(Entry.comparingByValue()).map(e -> e.getKey())
 				.sorted(Comparator.reverseOrder()).collect(Collectors.toSet());
 	}
 	
