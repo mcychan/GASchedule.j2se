@@ -3,11 +3,13 @@ package hk.edu.gaSchedule.algorithm;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -107,14 +109,15 @@ public class NsgaII<T extends Chromosome<T> >
 	/************** calculate crowding distance function ***************************/
 	private Set<Integer> calculateCrowdingDistance(Set<Integer> front, List<T> totalChromosome)
 	{
-		TreeMap<Integer, Float> distance = new TreeMap<>();
+		Map<Integer, Float> distance = new HashMap<>();
 		for(int m : front)
 			distance.put(m, 0.0f);
 		
-		Map<Integer, Float> obj = new TreeMap<>();
+		Map<Integer, Float> obj = new HashMap<>();
 		for(int m : front)
 			obj.put(m, totalChromosome.get(m).getFitness());
-		Integer[] sortedKeys = obj.keySet().toArray(new Integer[0]);
+		Integer[] sortedKeys = obj.entrySet().stream().
+				sorted(Entry.comparingByValue()).map(e -> e.getKey()).toArray(Integer[]::new);
 		distance.put(sortedKeys[front.size() - 1], Float.MAX_VALUE);
 		distance.put(sortedKeys[0], Float.MAX_VALUE);
 		
@@ -123,7 +126,9 @@ public class NsgaII<T extends Chromosome<T> >
 			if(values.size() != 1)
 				distance.put(sortedKeys[i], distance.get(sortedKeys[i]) + (obj.get(sortedKeys[i + 1]) - obj.get(sortedKeys[i - 1])) / (obj.get(sortedKeys[front.size() - 1]) - obj.get(sortedKeys[0])));
 		}
-		return distance.descendingKeySet();
+		return distance.entrySet().stream().
+				sorted(Entry.comparingByValue()).map(e -> e.getKey())
+				.sorted(Comparator.reverseOrder()).collect(Collectors.toSet());
 	}
 	
 	private List<T> selection(List<Set<Integer> > front, List<T> totalChromosome)
@@ -131,10 +136,10 @@ public class NsgaII<T extends Chromosome<T> >
 		int N = 0;
 		List<Integer> newPop = new ArrayList<>();
 		while(N < _populationSize) {
-			for(int i = 0; i < front.size(); ++i) {
-				N += front.get(i).size();
+			for(Set<Integer> row : front) {
+				N += row.size();
 				if(N > _populationSize) {
-					Set<Integer> sortedCdf = calculateCrowdingDistance(front.get(i), totalChromosome);
+					Set<Integer> sortedCdf = calculateCrowdingDistance(row, totalChromosome);
 					for(Integer j : sortedCdf) {
 						if(newPop.size() >= _populationSize)
 	                        break;
@@ -142,7 +147,7 @@ public class NsgaII<T extends Chromosome<T> >
 					}
 					break;
 				}
-				newPop.addAll(front.get(i));
+				newPop.addAll(row);
 			}
 		}
 		
