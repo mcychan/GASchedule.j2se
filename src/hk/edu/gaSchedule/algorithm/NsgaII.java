@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.HashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -109,21 +109,17 @@ public class NsgaII<T extends Chromosome<T> >
 	/************** calculate crowding distance function ***************************/
 	private Set<Integer> calculateCrowdingDistance(Set<Integer> front, List<T> totalChromosome)
 	{
-		Map<Integer, Float> distance = new HashMap<>();
-		for(int m : front)
-			distance.put(m, 0.0f);
-		
-		Map<Integer, Float> obj = new HashMap<>();
-		for(int m : front)
-			obj.put(m, totalChromosome.get(m).getFitness());
+		Map<Integer, Float> distance = front.stream().collect(Collectors.toMap(Function.identity(), m -> 0.0f));		
+		Map<Integer, Float> obj = front.stream().collect(Collectors.toMap(Function.identity(), m -> totalChromosome.get(m).getFitness()));
+
 		Integer[] sortedKeys = obj.entrySet().stream()
 			.sorted(Entry.comparingByValue()).map(e -> e.getKey()).toArray(Integer[]::new);
 		distance.put(sortedKeys[front.size() - 1], Float.MAX_VALUE);
 		distance.put(sortedKeys[0], Float.MAX_VALUE);
 		
 		Set<Float> values = new HashSet<>(obj.values());
-		for(int i = 1; i < front.size() - 1; ++i) {
-			if(values.size() != 1)
+		if(values.size() > 1) {
+			for(int i = 1; i < front.size() - 1; ++i)
 				distance.put(sortedKeys[i], distance.get(sortedKeys[i]) + (obj.get(sortedKeys[i + 1]) - obj.get(sortedKeys[i - 1])) / (obj.get(sortedKeys[front.size() - 1]) - obj.get(sortedKeys[0])));
 		}
 		return distance.entrySet().stream()
@@ -150,12 +146,8 @@ public class NsgaII<T extends Chromosome<T> >
 				newPop.addAll(row);
 			}
 		}
-		
-		List<T> population = new ArrayList<>();
-		for(int n : newPop)
-			population.add(totalChromosome.get(n));
 
-		return population;
+		return newPop.stream().map(n -> totalChromosome.get(n)).collect(Collectors.toList());
 	}
 	
 	protected void initialize(List<T> population)
