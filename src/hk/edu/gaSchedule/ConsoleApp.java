@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 
 import hk.edu.gaSchedule.algorithm.Configuration;
+import hk.edu.gaSchedule.algorithm.Ngra;
 // import hk.edu.gaSchedule.algorithm.GeneticAlgorithm;
 import hk.edu.gaSchedule.algorithm.NsgaII;
 import hk.edu.gaSchedule.algorithm.Schedule;
@@ -16,7 +17,7 @@ public class ConsoleApp
     public static void main(String[] args)
     {
     	try {
-	        System.out.println(String.format("GaSchedule Version %s . Making a Class Schedule Using a Genetic Algorithm (NSGA-II).", "1.1.0"));
+	        System.out.println(String.format("GaSchedule Version %s . Making a Class Schedule Using a Genetic Algorithm (NRGA).", "1.1.0"));
 	        System.out.println("Copyright (C) 2020 Miller Cy Chan.");
 	
 	        final String FILE_NAME = args.length > 0 ? args[0] : "GaSchedule.json";
@@ -29,7 +30,7 @@ public class ConsoleApp
 	        configuration.parseFile(targetFile.getAbsolutePath());	        
 	        
 	        // GeneticAlgorithm<Schedule> alg = new GeneticAlgorithm<>(new Schedule(configuration), 2, 2, 80, 3);
-	        NsgaII<Schedule> alg = new NsgaII<>(new Schedule(configuration), 2, 2, 80, 3);
+	        NsgaII<Schedule> alg = new Ngra<>(new Schedule(configuration), 2, 2, 80, 3);
 	        alg.run(9999, 0.999);
 	        
 	        String htmlResult = HtmlOutput.getResult(alg.getResult());
