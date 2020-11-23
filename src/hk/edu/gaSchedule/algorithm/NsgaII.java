@@ -22,7 +22,7 @@ public class NsgaII<T extends Chromosome<T> >
 	private T _prototype;
 	
 	// Number of chromosomes
-	private int _populationSize;
+	protected int _populationSize;
 	
 	// Number of crossover points of parent's class tables
 	private int _numberOfCrossoverPoints;
@@ -107,13 +107,13 @@ public class NsgaII<T extends Chromosome<T> >
 	}
 	
 	/************** calculate crowding distance function ***************************/
-	private Set<Integer> calculateCrowdingDistance(Set<Integer> front, List<T> totalChromosome)
+	protected Set<Integer> calculateCrowdingDistance(Set<Integer> front, List<T> totalChromosome)
 	{
 		Map<Integer, Float> distance = front.stream().collect(Collectors.toMap(Function.identity(), m -> 0.0f));		
 		Map<Integer, Float> obj = front.stream().collect(Collectors.toMap(Function.identity(), m -> totalChromosome.get(m).getFitness()));
 
-		Integer[] sortedKeys = obj.entrySet().stream()
-			.sorted(Entry.comparingByValue()).map(e -> e.getKey()).toArray(Integer[]::new);
+		int[] sortedKeys = obj.entrySet().stream()
+			.sorted(Entry.comparingByValue()).mapToInt(e -> e.getKey()).toArray();
 		distance.put(sortedKeys[front.size() - 1], Float.MAX_VALUE);
 		distance.put(sortedKeys[0], Float.MAX_VALUE);
 		
