@@ -89,7 +89,7 @@ public class NsgaII<T extends Chromosome<T> >
 		}
 		
 		int i = 0;
-		while(front.get(i) != null && !front.get(i).isEmpty()) {
+		while(!front.get(i).isEmpty()) {
 			Set<Integer> Q = new HashSet<>();
 			for(int p : front.get(i)) {
 				for(int q : s[p]) {
