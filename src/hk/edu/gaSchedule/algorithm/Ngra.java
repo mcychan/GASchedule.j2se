@@ -1,6 +1,5 @@
 package hk.edu.gaSchedule.algorithm;
 
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +18,10 @@ public class Ngra<T extends Chromosome<T> > extends NsgaII<T>
 
 	/************** calculate crowding distance function ***************************/
 	@Override
-	protected Set<Integer> calculateCrowdingDistance(Set<Integer> front, List<T> totalChromosome)
+	protected Map<Integer, Float> calculateCrowdingDistance(Set<Integer> front, List<T> totalChromosome)
 	{
-		final float divisor = _populationSize * (_populationSize + 1);
+		final int N = _populationSize;
+		final float divisor = N * (N + 1);
 		Map<Integer, Float> distance = front.stream().collect(Collectors.toMap(Function.identity(), m -> 0.0f));		
 		Map<Integer, Float> obj = front.stream().collect(Collectors.toMap(Function.identity(), m -> 2 * m / divisor));
 
@@ -35,9 +35,7 @@ public class Ngra<T extends Chromosome<T> > extends NsgaII<T>
 			for(int i = 1; i < front.size() - 1; ++i)
 				distance.put(sortedKeys[i], distance.get(sortedKeys[i]) + (obj.get(sortedKeys[i + 1]) - obj.get(sortedKeys[i - 1])) / (obj.get(sortedKeys[front.size() - 1]) - obj.get(sortedKeys[0])));
 		}
-		return distance.entrySet().stream()
-				.sorted(Entry.comparingByValue()).map(e -> e.getKey())
-				.sorted(Comparator.reverseOrder()).collect(Collectors.toSet());
+		return distance;
 	}	
 	
 }

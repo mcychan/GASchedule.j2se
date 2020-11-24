@@ -107,7 +107,7 @@ public class NsgaII<T extends Chromosome<T> >
 	}
 	
 	/************** calculate crowding distance function ***************************/
-	protected Set<Integer> calculateCrowdingDistance(Set<Integer> front, List<T> totalChromosome)
+	protected Map<Integer, Float> calculateCrowdingDistance(Set<Integer> front, List<T> totalChromosome)
 	{
 		Map<Integer, Float> distance = front.stream().collect(Collectors.toMap(Function.identity(), m -> 0.0f));		
 		Map<Integer, Float> obj = front.stream().collect(Collectors.toMap(Function.identity(), m -> totalChromosome.get(m).getFitness()));
@@ -122,9 +122,7 @@ public class NsgaII<T extends Chromosome<T> >
 			for(int i = 1; i < front.size() - 1; ++i)
 				distance.put(sortedKeys[i], distance.get(sortedKeys[i]) + (obj.get(sortedKeys[i + 1]) - obj.get(sortedKeys[i - 1])) / (obj.get(sortedKeys[front.size() - 1]) - obj.get(sortedKeys[0])));
 		}
-		return distance.entrySet().stream()
-				.sorted(Entry.comparingByValue()).map(e -> e.getKey())
-				.sorted(Comparator.reverseOrder()).collect(Collectors.toSet());
+		return distance;
 	}
 	
 	private List<T> selection(List<Set<Integer> > front, List<T> totalChromosome)
@@ -135,7 +133,10 @@ public class NsgaII<T extends Chromosome<T> >
 			for(Set<Integer> row : front) {
 				N += row.size();
 				if(N > _populationSize) {
-					Set<Integer> sortedCdf = calculateCrowdingDistance(row, totalChromosome);
+					Map<Integer, Float> distance = calculateCrowdingDistance(row, totalChromosome);
+					Set<Integer> sortedCdf = distance.entrySet().stream()
+					.sorted(Entry.comparingByValue()).map(e -> e.getKey())
+					.sorted(Comparator.reverseOrder()).collect(Collectors.toSet());					
 					for(Integer j : sortedCdf) {
 						if(newPop.size() >= _populationSize)
 	                        break;
