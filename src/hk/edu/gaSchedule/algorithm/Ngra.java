@@ -23,7 +23,7 @@ public class Ngra<T extends Chromosome<T> > extends NsgaII<T>
 		final int N = _populationSize;
 		final float divisor = N * (N + 1);
 		Map<Integer, Float> distance = front.stream().collect(Collectors.toMap(Function.identity(), m -> 0.0f));		
-		Map<Integer, Float> obj = front.stream().collect(Collectors.toMap(Function.identity(), m -> 2 * m / divisor));
+		Map<Integer, Float> obj = front.stream().collect(Collectors.toMap(Function.identity(), m -> 2 * _rank[m] / divisor));
 
 		int[] sortedKeys = obj.entrySet().stream()
 			.sorted(Entry.comparingByValue()).mapToInt(e -> e.getKey()).toArray();

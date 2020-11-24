@@ -34,7 +34,9 @@ public class NsgaII<T extends Chromosome<T> >
 	private float _crossoverProbability;
 
 	// Probability that mutation will occur
-	private float _mutationProbability;	
+	private float _mutationProbability;
+	
+	protected int[] _rank;
 
 	// Initializes NsgaII
 	private NsgaII(T prototype, int numberOfChromosomes)
@@ -69,7 +71,7 @@ public class NsgaII<T extends Chromosome<T> >
 		Set<Integer>[] s = (Set<Integer>[]) Array.newInstance(Set.class, _populationSize * 2);
 		int[] n = new int[s.length];
 		List<Set<Integer> > front = new ArrayList<>();
-		int[] rank = new int[s.length];
+		_rank = new int[s.length];
 		front.add(new HashSet<Integer>());
 		
 		for(int p = 0; p < s.length; ++p) {
@@ -83,7 +85,7 @@ public class NsgaII<T extends Chromosome<T> >
 			}
 			
 			if (n[p] == 0) {
-	            rank[p] = 0;
+				_rank[p] = 0;
 	            front.get(0).add(p);
 			}
 		}
@@ -94,7 +96,7 @@ public class NsgaII<T extends Chromosome<T> >
 			for(int p : front.get(i)) {
 				for(int q : s[p]) {
 					if (--n[q] == 0) {
-						rank[q] = i + 1;
+						_rank[q] = i + 1;
 						Q.add(q);
 					}
 				}
