@@ -19,24 +19,22 @@ public class NsgaII<T extends Chromosome<T> >
 	private List<T> _chromosomes;
 
 	// Prototype of chromosomes in population
-	private T _prototype;
+	protected T _prototype;
 	
 	// Number of chromosomes
 	protected int _populationSize;
 	
 	// Number of crossover points of parent's class tables
-	private int _numberOfCrossoverPoints;
+	protected int _numberOfCrossoverPoints;
 
 	// Number of classes that is moved randomly by single mutation operation
 	private int _mutationSize;
 
 	// Probability that crossover will occur
-	private float _crossoverProbability;
+	protected float _crossoverProbability;
 
 	// Probability that mutation will occur
 	private float _mutationProbability;
-	
-	protected int[] _rank;
 
 	// Initializes NsgaII
 	private NsgaII(T prototype, int numberOfChromosomes)
@@ -71,7 +69,7 @@ public class NsgaII<T extends Chromosome<T> >
 		Set<Integer>[] s = (Set<Integer>[]) Array.newInstance(Set.class, _populationSize * 2);
 		int[] n = new int[s.length];
 		List<Set<Integer> > front = new ArrayList<>();
-		_rank = new int[s.length];
+		int[] rank = new int[s.length];
 		front.add(new HashSet<Integer>());
 		
 		for(int p = 0; p < s.length; ++p) {
@@ -85,7 +83,7 @@ public class NsgaII<T extends Chromosome<T> >
 			}
 			
 			if (n[p] == 0) {
-				_rank[p] = 0;
+				rank[p] = 0;
 	            front.get(0).add(p);
 			}
 		}
@@ -96,7 +94,7 @@ public class NsgaII<T extends Chromosome<T> >
 			for(int p : front.get(i)) {
 				for(int q : s[p]) {
 					if (--n[q] == 0) {
-						_rank[q] = i + 1;
+						rank[q] = i + 1;
 						Q.add(q);
 					}
 				}
@@ -109,7 +107,7 @@ public class NsgaII<T extends Chromosome<T> >
 	}
 	
 	/************** calculate crowding distance function ***************************/
-	protected Map<Integer, Float> calculateCrowdingDistance(Set<Integer> front, List<T> totalChromosome)
+	private Map<Integer, Float> calculateCrowdingDistance(Set<Integer> front, List<T> totalChromosome)
 	{
 		Map<Integer, Float> distance = front.stream().collect(Collectors.toMap(Function.identity(), m -> 0.0f));		
 		Map<Integer, Float> obj = front.stream().collect(Collectors.toMap(Function.identity(), m -> totalChromosome.get(m).getFitness()));
@@ -151,7 +149,25 @@ public class NsgaII<T extends Chromosome<T> >
 		}
 
 		return newPop.stream().map(n -> totalChromosome.get(n)).collect(Collectors.toList());
-	}
+	}	
+	
+	protected List<T> replacement(List<T> population)
+    {
+		List<T> offspring = new ArrayList<>();
+		List<Integer> S = IntStream.range(0, _populationSize).boxed().collect(Collectors.toList());
+		Collections.shuffle(S);
+		
+		final int halfPopulationSize = _populationSize / 2;
+		for(int m = 0; m < halfPopulationSize; ++m) {
+			T parent0 = population.get(S.get(2 * m));
+			T parent1 = population.get(S.get(2 * m + 1));
+			T child0 = parent0.crossover(parent1, _numberOfCrossoverPoints, _crossoverProbability);
+			T child1 = parent1.crossover(parent0, _numberOfCrossoverPoints, _crossoverProbability);
+			offspring.add(child0);
+			offspring.add(child1);
+		}
+		return offspring;
+    }
 	
 	protected void initialize(List<T> population)
 	{
@@ -193,22 +209,10 @@ public class NsgaII<T extends Chromosome<T> >
 	
 				if (repeat > (maxRepeat / 100))		
 					++_crossoverProbability;
-			}	
+			}				
 			
 			/******************* crossover *****************/
-			List<T> offspring = new ArrayList<>();
-			List<Integer> S = IntStream.range(0, _populationSize).boxed().collect(Collectors.toList());
-			Collections.shuffle(S);
-			
-			final int halfPopulationSize = _populationSize / 2;
-			for(int m = 0; m < halfPopulationSize; ++m) {
-				T parent0 = population.get(S.get(2 * m));
-				T parent1 = population.get(S.get(2 * m + 1));
-				T child0 = parent0.crossover(parent1, _numberOfCrossoverPoints, _crossoverProbability);
-				T child1 = parent1.crossover(parent0, _numberOfCrossoverPoints, _crossoverProbability);
-				offspring.add(child0);
-				offspring.add(child1);
-			}
+			List<T> offspring = replacement(population);			
 			
 			/******************* mutation *****************/
 			for(T child : offspring)

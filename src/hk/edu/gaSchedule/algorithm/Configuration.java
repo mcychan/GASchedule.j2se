@@ -301,4 +301,9 @@ public class Configuration
 	{
 		return random.nextInt(32768);
 	}
+	
+	public static double random()
+	{
+		return random.nextDouble();
+	}
 }
