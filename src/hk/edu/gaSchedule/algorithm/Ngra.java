@@ -51,7 +51,7 @@ public class Ngra<T extends Chromosome<T> > extends NsgaII<T>
 			if(!selected)
 				parent[parentIndex++ % 2] = population.get(sortedIndices.get(i));
 			
-			if(parentIndex > 0 && parentIndex % 2 == 0) {
+			if(parentIndex % 2 == 0) {
 				T child0 = parent[0].crossover(parent[1], _numberOfCrossoverPoints, _crossoverProbability);
 				T child1 = parent[1].crossover(parent[0], _numberOfCrossoverPoints, _crossoverProbability);
 				offspring.add(child0);

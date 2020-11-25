@@ -37,7 +37,7 @@ public class Configuration
 	// Inidicate that configuration is not parsed yet
 	private boolean _isEmpty;
 	
-	private static Random random = new Random();
+	private static Random random = new Random(System.currentTimeMillis());
 
 	// Initialize data
 	public Configuration()  {
