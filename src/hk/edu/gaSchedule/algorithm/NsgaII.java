@@ -240,6 +240,12 @@ public class NsgaII<T extends Chromosome<T> >
 			}
 			++currentGeneration;
 		}
-	}		
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "NSGA II";
+	}
 }
 

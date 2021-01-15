@@ -71,5 +71,11 @@ public class Ngra<T extends Chromosome<T> > extends NsgaII<T>
 		population.addAll(offspring);
 	}
 	
+	@Override
+	public String toString()
+	{
+		return "Non-dominated Ranking Genetic Algorithm (NRGA)";
+	}
+	
 }
 

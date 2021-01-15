@@ -306,4 +306,9 @@ public class Configuration
 	{
 		return random.nextDouble();
 	}
+	
+	public static int rand(int size)
+	{
+		return random.nextInt(size);
+	}
 }

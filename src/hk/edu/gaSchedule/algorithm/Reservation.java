@@ -1,10 +1,10 @@
 package hk.edu.gaSchedule.algorithm;
 
 public class Reservation {
-	private int nr;
-	private int day;
-	private int time;
-	private int room;
+	private final int nr;
+	private final int day;
+	private final int time;
+	private final int room;
 	
 	public Reservation(int nr, int day, int time, int room) {
 		this.nr = nr;
@@ -28,9 +28,22 @@ public class Reservation {
 	public int getRoom() {
 		return room;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		//Check for null and compare run-time types.
+		if ((obj == null) || !this.getClass().equals(obj.getClass()))
+			return false;
 
-	public int index() {
+		Reservation other = (Reservation) obj;
+		return hashCode() == other.hashCode();
+	}
+
+	@Override
+	public int hashCode()
+	{
 		return day * nr * Constant.DAY_HOURS + room * Constant.DAY_HOURS + time;
-	}		
+	}
 	
 }

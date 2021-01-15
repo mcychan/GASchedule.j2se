@@ -224,6 +224,12 @@ public class GeneticAlgorithm<T extends Chromosome<T> >
 
 			lastBestFit = best.getFitness();
 		}
-	}		
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "Genetic Algorithm";
+	}
 }
 
