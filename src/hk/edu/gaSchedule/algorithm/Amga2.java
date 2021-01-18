@@ -119,7 +119,7 @@ public class Amga2<T extends Chromosome<T> >
 			return;
         }
 
-		List<Integer> distinct = extractDistinctIndividuals(population, elite);
+		Set<Integer> distinct = extractDistinctIndividuals(population, elite);
 		if (distinct.size() <= 2)
 		{
 			assignInfiniteDiversity(population, elite);
@@ -183,10 +183,10 @@ public class Amga2<T extends Chromosome<T> >
 		return Float.compare(a.getFitness(), b.getFitness());
 	}
 
-	private List<Integer> extractDistinctIndividuals(List<T> population, List<Integer> elite)
+	private Set<Integer> extractDistinctIndividuals(List<T> population, List<Integer> elite)
 	{
 		return elite.stream().sorted((Integer e1, Integer e2) ->
-			Float.compare(population.get(e1).getFitness(), population.get(e2).getFitness())).collect(Collectors.toList());
+			checkDomination(population.get(e1), population.get(e2))).collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	private Set<Integer> extractENNSPopulation(List<T> mixedPopulation, List<Integer> pool, int desiredEliteSize)
