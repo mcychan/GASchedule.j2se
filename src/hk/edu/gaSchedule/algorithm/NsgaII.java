@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -136,7 +137,7 @@ public class NsgaII<T extends Chromosome<T> >
 					Map<Integer, Float> distance = calculateCrowdingDistance(row, totalChromosome);
 					Set<Integer> sortedCdf = distance.entrySet().stream()
 					.sorted(Entry.comparingByValue()).map(e -> e.getKey())
-					.sorted(Comparator.reverseOrder()).collect(Collectors.toSet());					
+					.sorted(Comparator.reverseOrder()).collect(Collectors.toCollection(LinkedHashSet::new));					
 					for(Integer j : sortedCdf) {
 						if(newPop.size() >= _populationSize)
 	                        break;

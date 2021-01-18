@@ -2,12 +2,12 @@ package hk.edu.gaSchedule.algorithm;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /****************** Archive-Based Steady-State Micro Genetic Algorithm(AMGA2) **********************/
 public class Amga2<T extends Chromosome<T> >
@@ -119,7 +119,7 @@ public class Amga2<T extends Chromosome<T> >
 			return;
         }
 
-		Set<Integer> distinct = extractDistinctIndividuals(population, elite);
+		List<Integer> distinct = extractDistinctIndividuals(population, elite);
 		if (distinct.size() <= 2)
 		{
 			assignInfiniteDiversity(population, elite);
@@ -139,20 +139,20 @@ public class Amga2<T extends Chromosome<T> >
 			{
 				float[] hashArray = new float[] { 0.0f, population.get(indexArray[j]).getFitness(), population.get(indexArray[j + 1]).getFitness() };
 				float r = (hashArray[2] - hashArray[1]) / val;
-				population.get(indexArray[j]).setDiversity(population.get(indexArray[j]).getDiversity() + (float)(r * r));
+				population.get(indexArray[j]).setDiversity(population.get(indexArray[j]).getDiversity() + (r * r));
 			}
 			else if (j == size - 1)
 			{
 				float[] hashArray = new float[] { population.get(indexArray[j - 1]).getFitness(), population.get(indexArray[j]).getFitness() };
 				float l = (hashArray[1] - hashArray[0]) / val;
-				population.get(indexArray[j]).setDiversity(population.get(indexArray[j]).getDiversity() + (float)(l * l));
+				population.get(indexArray[j]).setDiversity(population.get(indexArray[j]).getDiversity() + (l * l));
 			}
 			else
 			{
 				float[] hashArray = new float[] { population.get(indexArray[j - 1]).getFitness(), population.get(indexArray[j]).getFitness(), population.get(indexArray[j + 1]).getFitness() };
 				float l = (hashArray[1] - hashArray[0]) / val;
 				float r = (hashArray[2] - hashArray[1]) / val;
-				population.get(indexArray[j]).setDiversity(population.get(indexArray[j]).getDiversity() + (float)(l * r));
+				population.get(indexArray[j]).setDiversity(population.get(indexArray[j]).getDiversity() + (l * r));
 			}
 		}
 	}
@@ -183,23 +183,23 @@ public class Amga2<T extends Chromosome<T> >
 		return Float.compare(a.getFitness(), b.getFitness());
 	}
 
-	private Set<Integer> extractDistinctIndividuals(List<T> population, List<Integer> elite)
+	private List<Integer> extractDistinctIndividuals(List<T> population, List<Integer> elite)
 	{
 		return elite.stream().sorted((Integer e1, Integer e2) ->
-			Float.compare(population.get(e1).getFitness(), population.get(e2).getFitness())).collect(Collectors.toSet());
+			Float.compare(population.get(e1).getFitness(), population.get(e2).getFitness())).collect(Collectors.toList());
 	}
 
 	private Set<Integer> extractENNSPopulation(List<T> mixedPopulation, List<Integer> pool, int desiredEliteSize)
 	{
 		int poolSize = pool.size();
 		int mixedSize = mixedPopulation.size();
-		Set<Integer> filtered = pool.stream().filter(index -> Float.isInfinite((Float) mixedPopulation.get(index).getDiversity())).collect(Collectors.toSet());
+		Set<Integer> filtered = pool.stream().filter(index -> Float.isInfinite((Float) mixedPopulation.get(index).getDiversity())).collect(Collectors.toCollection(LinkedHashSet::new));
 		int numInf = filtered.size();
 
 		if (desiredEliteSize <= numInf)
-			return filtered.stream().limit(desiredEliteSize).collect(Collectors.toSet());
+			return filtered.stream().limit(desiredEliteSize).collect(Collectors.toCollection(LinkedHashSet::new));
 
-		Set<Integer> elite = pool.stream().collect(Collectors.toSet());
+		Set<Integer> elite = pool.stream().collect(Collectors.toCollection(LinkedHashSet::new));
 		pool.clear();
 		if (desiredEliteSize >= elite.size())
 			return elite;
@@ -318,20 +318,19 @@ public class Amga2<T extends Chromosome<T> >
 			int index1 = pool.get(0);
 			pool.remove(0);
 			int flag = -1;
-			int j = 0;
-			while (j < elite.size())
+			int index2 = 0;
+			while (index2 < elite.size())
 			{
-				int index2 = j;
 				flag = checkDomination(population.get(index1), population.get(index2));
 				if (flag == 1)
 				{
 					remains.add(index2);
-					elite.remove(j);
+					elite.remove(index2);
 				}
 				else if (flag == -1)
 					break;
 				else
-					++j;
+					++index2;
 			}
 
 			if (flag > -1)
