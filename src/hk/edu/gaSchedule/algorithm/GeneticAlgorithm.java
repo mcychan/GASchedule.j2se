@@ -222,6 +222,7 @@ public class GeneticAlgorithm<T extends Chromosome<T> >
 
 			replacement(_chromosomes);
 
+			Configuration.seed();
 			lastBestFit = best.getFitness();
 		}
 	}

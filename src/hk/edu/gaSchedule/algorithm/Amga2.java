@@ -509,6 +509,7 @@ public class Amga2<T extends Chromosome<T> >
 			createOffspringPopulation();
 			mutateOffspringPopulation();
 			updateArchivePopulation();
+			Configuration.seed();
 			++currentGeneration;
 		}
 	}

@@ -37,7 +37,7 @@ public class Configuration
 	// Inidicate that configuration is not parsed yet
 	private boolean _isEmpty;
 	
-	private static Random random = new Random(System.currentTimeMillis());
+	private static Random _random = new Random(System.currentTimeMillis());
 
 	// Initialize data
 	public Configuration()  {
@@ -299,16 +299,21 @@ public class Configuration
 	
 	public static int rand()
 	{
-		return random.nextInt(32768);
+		return _random.nextInt(32768);
 	}
 	
 	public static double random()
 	{
-		return random.nextDouble();
+		return _random.nextDouble();
 	}
 	
 	public static int rand(int size)
 	{
-		return random.nextInt(size);
+		return _random.nextInt(size);
+	}
+	
+	public static void seed()
+	{
+		_random = new Random(System.currentTimeMillis());
 	}
 }

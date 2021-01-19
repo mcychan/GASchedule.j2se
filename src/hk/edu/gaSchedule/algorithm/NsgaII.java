@@ -238,6 +238,7 @@ public class NsgaII<T extends Chromosome<T> >
 				_chromosomes = selection(newBestFront, totalChromosome);
 				lastBestFit = best.getFitness();
 			}
+			Configuration.seed();
 			++currentGeneration;
 		}
 	}
