@@ -517,7 +517,7 @@ public class Amga2<T extends Chromosome<T> >
 	@Override
 	public String toString()
 	{
-		return "Archive-Based Steady-State Micro Genetic Algorithm (AMGA2)";
+		return "Archive-based Micro Genetic Algorithm (AMGA2)";
 	}
 }
 
