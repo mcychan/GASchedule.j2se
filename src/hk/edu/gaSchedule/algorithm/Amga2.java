@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/****************** Archive-Based Steady-State Micro Genetic Algorithm(AMGA2) **********************/
+/****************** Archive-based Micro Genetic Algorithm(AMGA2) **********************/
 public class Amga2<T extends Chromosome<T> >
 {
 	// Population of chromosomes
