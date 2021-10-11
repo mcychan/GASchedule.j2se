@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
-import hk.edu.gaSchedule.algorithm.Configuration;
 import hk.edu.gaSchedule.algorithm.Constant;
 import hk.edu.gaSchedule.algorithm.CourseClass;
 import hk.edu.gaSchedule.algorithm.Reservation;
@@ -40,6 +39,34 @@ public class HtmlOutput
 		sb.append("</tr>\n");
 		return sb.toString();
 	}
+	
+	private static String getCourseClass(final CourseClass cc, final boolean[] criterias, final int ci)
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append(cc.Course.Name).append("<br />").append(cc.Professor.Name).append("<br />");
+		sb.append(String.join("/", cc.Groups.stream().map(grp -> grp.Name).collect(Collectors.toList())));
+		sb.append("<br />");
+		if (cc.LabRequired)
+			sb.append("Lab<br />");
+
+		for(int i=0; i< CRITERIAS.length; ++i)
+        {
+			sb.append("<span style='color:");
+			if(criterias[ci + i])
+            {
+				sb.append(COLOR1).append("' title='");
+				sb.append(String.format(CRITERIAS_DESCR[i], (i == 1 || i == 2) ? "" : "no "));
+			}
+			else
+            {
+				sb.append(COLOR2).append("' title='");
+				sb.append(String.format(CRITERIAS_DESCR[i], (i == 1 || i == 2) ? "not " : ""));
+			}
+			sb.append("'> ").append(CRITERIAS[i]);
+			sb.append(" </span>");
+		}
+		return sb.toString();
+	}
 
 	private static Map<Point, String[]> generateTimeTable(Schedule solution, Map<Point, int[]> slotTable)
 	{
@@ -52,56 +79,33 @@ public class HtmlOutput
 		{
 			// coordinate of time-space slot
 			Reservation reservation = classes.get(cc);
-			int day = reservation.getDay() + 1;
-			int time = reservation.getTime() + 1;
-			int room = reservation.getRoom();
+			int dayId = reservation.getDay() + 1;
+			int periodId = reservation.getTime() + 1;
+			int roomId = reservation.getRoom();
 
-			Point key = new Point(time, room);
-			int[] roomDuration = slotTable.containsKey(key) ? slotTable.get(key) : null;
-			if (roomDuration == null)
+			Point key = new Point(periodId, roomId);
+			int[] roomDurations = slotTable.get(key);
+			if (roomDurations == null)
 			{
-				roomDuration = new int[ROOM_COLUMN_NUMBER];
-				slotTable.put(key, roomDuration);
+				roomDurations = new int[ROOM_COLUMN_NUMBER];
+				slotTable.put(key, roomDurations);
 			}
-			roomDuration[day] = cc.Duration;
+			roomDurations[dayId] = cc.Duration;
 			for (int m = 1; m < cc.Duration; ++m)
 			{
-				Point nextRow = new Point(time + m, room);
+				Point nextRow = new Point(periodId + m, roomId);
 				if (!slotTable.containsKey(nextRow))
 					slotTable.put(nextRow, new int[ROOM_COLUMN_NUMBER]);
-				if (slotTable.get(nextRow)[day] < 1)
-					slotTable.get(nextRow)[day] = -1;
+				if (slotTable.get(nextRow)[dayId] < 1)
+					slotTable.get(nextRow)[dayId] = -1;
 			}
 
-			String[] roomSchedule = timeTable.containsKey(key) ? timeTable.get(key) : null;
-			StringBuilder sb = new StringBuilder();
+			String[] roomSchedule = timeTable.get(key);			
 			if (roomSchedule == null) {
 				roomSchedule = new String[ROOM_COLUMN_NUMBER];
 				timeTable.put(key, roomSchedule);
 			}
-			sb.append(cc.Course.Name).append("<br />").append(cc.Professor.Name).append("<br />");
-			sb.append(String.join("/", cc.Groups.stream().map(grp -> grp.Name).collect(Collectors.toList())));
-			sb.append("<br />");
-			if (cc.LabRequired)
-				sb.append("Lab<br />");
-
-			for(int i=0; i< CRITERIAS.length; ++i)
-            {
-				sb.append("<span style='color:");
-				if(solution.getCriteria()[ci + i])
-                {
-					sb.append(COLOR1).append("' title='");
-					sb.append(String.format(CRITERIAS_DESCR[i], (i == 1 || i == 2) ? "" : "no "));
-				}
-				else
-                {
-					sb.append(COLOR2).append("' title='");
-					sb.append(String.format(CRITERIAS_DESCR[i], (i == 1 || i == 2) ? "not " : ""));
-				}
-				sb.append("'> ").append(CRITERIAS[i]);
-				sb.append(" </span>");
-			}
-			roomSchedule[day] = sb.toString();
+			roomSchedule[dayId] = getCourseClass(cc, solution.getCriteria(), ci);			
 			ci += Constant.DAYS_NUM;
 		}
 		return timeTable;
@@ -132,16 +136,16 @@ public class HtmlOutput
 		int nr = solution.getConfiguration().getNumberOfRooms();
 
 		Map<Point, int[]> slotTable = new HashMap<>();
-		Map<Point, String[]> timeTable = generateTimeTable(solution, slotTable); // Point.X = time, Point.Y = roomId
+		Map<Point, String[]> timeTable = generateTimeTable(solution, slotTable);
 		if (slotTable.isEmpty() || timeTable.isEmpty())
 			return "";
 
-		for (int k = 0; k < nr; k++)
+		for (int roomId = 0; roomId < nr; ++roomId)
 		{
-			Room room = solution.getConfiguration().getRoomById(k);
-			for (int j = 0; j < ROOM_ROW_NUMBER; ++j)
+			Room room = solution.getConfiguration().getRoomById(roomId);
+			for (int periodId = 0; periodId < ROOM_ROW_NUMBER; ++periodId)
 			{
-				if (j == 0)
+				if (periodId == 0)
 				{
 					sb.append("<div id='room_").append(room.Name).append("' style='padding: 0.5em'>\n");
 					sb.append("<table style='border-collapse: collapse; width: 95%'>\n");
@@ -149,28 +153,28 @@ public class HtmlOutput
 				}
 				else
                 {						
-					Point key = new Point(j, k);							
-					int[] roomDuration = slotTable.containsKey(key) ? slotTable.get(key) : null;
-					String[] roomSchedule = timeTable.containsKey(key) ? timeTable.get(key) : null;
+					Point key = new Point(periodId, roomId);							
+					int[] roomDurations = slotTable.get(key);
+					String[] roomSchedule = timeTable.get(key);
 					sb.append("<tr>");
-					for (int i = 0; i < ROOM_COLUMN_NUMBER; ++i)
+					for (int dayId = 0; dayId < ROOM_COLUMN_NUMBER; ++dayId)
 					{
-						if(i == 0)
+						if(dayId == 0)
                         {
-							sb.append("<th style='border: 1px solid black; padding: 5px' scope='row' colspan='2'>").append(PERIODS[j]).append("</th>\n");
+							sb.append("<th style='border: 1px solid black; padding: 5px' scope='row' colspan='2'>").append(PERIODS[periodId]).append("</th>\n");
 							continue;
 						}
 
-						if (roomSchedule == null && roomDuration == null)
+						if (roomSchedule == null && roomDurations == null)
 							continue;
 
-						String content = (roomSchedule != null) ? roomSchedule[i] : null;
-						sb.append(getHtmlCell(content, roomDuration[i]));							
+						String content = (roomSchedule != null) ? roomSchedule[dayId] : null;
+						sb.append(getHtmlCell(content, roomDurations[dayId]));							
 					}
 					sb.append("</tr>\n");							
 				}
 
-				if (j == ROOM_ROW_NUMBER - 1)
+				if (periodId == ROOM_ROW_NUMBER - 1)
 					sb.append("</table>\n</div>\n");
 			}
 		}
