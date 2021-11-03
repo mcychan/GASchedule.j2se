@@ -1,8 +1,10 @@
 package hk.edu.gaSchedule.algorithm;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -117,7 +119,7 @@ public class Amga2<T extends Chromosome<T> >
 			return;
         }
 
-		List<Integer> distinct = extractDistinctIndividuals(population, elite);
+		Queue<Integer> distinct = extractDistinctIndividuals(population, elite);
 		if (distinct.size() <= 2)
 		{
 			assignInfiniteDiversity(population, elite);
@@ -181,13 +183,13 @@ public class Amga2<T extends Chromosome<T> >
 		return Float.compare(a.getFitness(), b.getFitness());
 	}
 
-	private List<Integer> extractDistinctIndividuals(List<T> population, List<Integer> elite)
+	private Queue<Integer> extractDistinctIndividuals(List<T> population, List<Integer> elite)
 	{
 		return elite.stream().sorted((Integer e1, Integer e2) ->
-			checkDomination(population.get(e1), population.get(e2))).distinct().collect(Collectors.toList());
+			checkDomination(population.get(e1), population.get(e2))).distinct().collect(Collectors.toCollection(ArrayDeque::new));
 	}
 
-	private List<Integer> extractENNSPopulation(List<T> mixedPopulation, List<Integer> pool, int desiredEliteSize)
+	private Queue<Integer> extractENNSPopulation(List<T> mixedPopulation, Queue<Integer> pool, int desiredEliteSize)
 	{
 		int poolSize = pool.size();
 		int mixedSize = mixedPopulation.size();
@@ -195,9 +197,9 @@ public class Amga2<T extends Chromosome<T> >
 		int numInf = filtered.size();
 
 		if (desiredEliteSize <= numInf)
-			return filtered.stream().limit(desiredEliteSize).distinct().collect(Collectors.toList());
+			return filtered.stream().limit(desiredEliteSize).distinct().collect(Collectors.toCollection(ArrayDeque::new));
 
-		List<Integer> elite = pool.stream().distinct().collect(Collectors.toList());
+		Queue<Integer> elite = pool.stream().distinct().collect(Collectors.toCollection(ArrayDeque::new));
 		pool.clear();
 		if (desiredEliteSize >= elite.size())
 			return elite;
@@ -295,26 +297,23 @@ public class Amga2<T extends Chromosome<T> >
 		
 		while (elite.size() > desiredEliteSize)
 		{
-			Integer temp = elite.get(0);
+			Integer temp = elite.poll();
 			pool.add(temp);
-			elite.remove(temp);
 		}
 		return elite;
 	}
 
-	private boolean extractBestRank(List<T> population, List<Integer> pool, List<Integer> elite)
+	private boolean extractBestRank(List<T> population, Queue<Integer> pool, List<Integer> elite)
 	{
 		if (pool.isEmpty())
 			return false;
 
-		List<Integer> remains = new ArrayList<>();
-		elite.add(pool.get(0));
-		pool.remove(0);			
+		Queue<Integer> remains = new ArrayDeque<>();
+		Integer index1 = pool.poll();
+		elite.add(index1);
 
-		while (!pool.isEmpty())
+		while ((index1 = pool.poll()) != null)
 		{
-			int index1 = pool.get(0);
-			pool.remove(0);
 			int flag = -1;
 			int index2 = 0;
 			while (index2 < elite.size())
@@ -343,7 +342,7 @@ public class Amga2<T extends Chromosome<T> >
 
 	private void fillBestPopulation(List<T> mixedPopulation, int mixedLength, List<T> population, int populationLength)
 	{
-		List<Integer> pool = IntStream.range(0, mixedLength).boxed().collect(Collectors.toList());
+		Queue<Integer> pool = IntStream.range(0, mixedLength).boxed().collect(Collectors.toCollection(ArrayDeque::new));
 		List<Integer> elite = new ArrayList<>();
 		List<Integer> filled = new ArrayList<>();
 		AtomicInteger rank = new AtomicInteger(1);
@@ -366,7 +365,7 @@ public class Amga2<T extends Chromosome<T> >
 			}
 			else
 			{
-				List<Integer> temp = extractENNSPopulation(mixedPopulation, elite, populationLength - filled.size());
+				Queue<Integer> temp = extractENNSPopulation(mixedPopulation, new ArrayDeque<>(elite), populationLength - filled.size());
 				filled.addAll(temp);
 			}
 		}
@@ -388,7 +387,7 @@ public class Amga2<T extends Chromosome<T> >
 
 	private void createParentPopulation()
 	{
-		List<Integer> pool = IntStream.range(0, _currentArchiveSize).boxed().collect(Collectors.toList());
+		Queue<Integer> pool = IntStream.range(0, _currentArchiveSize).boxed().collect(Collectors.toCollection(ArrayDeque::new));
 		List<Integer> elite = new ArrayList<>();
 		List<Integer> selectionPool = new ArrayList<>();
 
@@ -445,7 +444,7 @@ public class Amga2<T extends Chromosome<T> >
 	private void finalizePopulation()
 	{		
 		List<Integer> elite = new ArrayList<>();
-		List<Integer> pool = IntStream.range(0, _currentArchiveSize).boxed().filter(i -> _archivePopulation.get(i).getFitness() >= 0.0).collect(Collectors.toList());
+		Queue<Integer> pool = IntStream.range(0, _currentArchiveSize).boxed().filter(i -> _archivePopulation.get(i).getFitness() >= 0.0).collect(Collectors.toCollection(ArrayDeque::new));
 
 		if (!pool.isEmpty())
 		{
@@ -457,7 +456,7 @@ public class Amga2<T extends Chromosome<T> >
 
 				assignInfiniteDiversity(_archivePopulation, elite);
 				extractENNSPopulation(_archivePopulation, pool, _populationSize);
-				elite = pool;
+				elite = new ArrayList<>(pool);
 			}
 			_currentArchiveSize = elite.size();
 			AtomicInteger i = new AtomicInteger(0);
