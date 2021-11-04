@@ -343,7 +343,7 @@ public class Amga2<T extends Chromosome<T> >
 	private void fillBestPopulation(List<T> mixedPopulation, int mixedLength, List<T> population, int populationLength)
 	{
 		Queue<Integer> pool = IntStream.range(0, mixedLength).boxed().collect(Collectors.toCollection(ArrayDeque::new));
-		List<Integer> elite = new ArrayList<>();
+		Queue<Integer> elite = new ArrayDeque<>();
 		List<Integer> filled = new ArrayList<>();
 		AtomicInteger rank = new AtomicInteger(1);
 
@@ -352,11 +352,13 @@ public class Amga2<T extends Chromosome<T> >
 		boolean hasBetter = true;
 		while (hasBetter && filled.size() < populationLength)
 		{
-			hasBetter = extractBestRank(mixedPopulation, pool, elite);
-			elite.forEach(index -> mixedPopulation.get(index).setRank(rank.get()));
-
+			List<Integer> elites = new ArrayList<>(elite);
+			hasBetter = extractBestRank(mixedPopulation, pool, elites);
+			elites.forEach(index -> mixedPopulation.get(index).setRank(rank.get()));
+			
 			if (rank.getAndIncrement() == 1)
-				assignInfiniteDiversity(mixedPopulation, elite);
+				assignInfiniteDiversity(mixedPopulation, elites);
+			elite = new ArrayDeque<>(elites);
 
 			if (elite.size() + filled.size() < populationLength)
 			{
@@ -365,7 +367,7 @@ public class Amga2<T extends Chromosome<T> >
 			}
 			else
 			{
-				Queue<Integer> temp = extractENNSPopulation(mixedPopulation, new ArrayDeque<>(elite), populationLength - filled.size());
+				Queue<Integer> temp = extractENNSPopulation(mixedPopulation, elite, populationLength - filled.size());
 				filled.addAll(temp);
 			}
 		}
