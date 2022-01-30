@@ -245,7 +245,7 @@ public class Configuration
 		return new CourseClass(p, c, lab, dur, groups.toArray(new StudentsGroup[0]));
 	}
 	
-	private static Gson getGson() {
+	public static Gson getGson() {
     	return new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ssZ").create();
     }
 
