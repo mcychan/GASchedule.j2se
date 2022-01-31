@@ -2,6 +2,7 @@ package hk.edu.gaSchedule.algorithm;
 
 import java.lang.reflect.Type;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -249,8 +250,7 @@ public class Configuration
     	return new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ssZ").create();
     }
 
-	// parse file and store parsed object
-	public void parseFile(String fileName) throws Exception
+	public void parseJson(String json) throws Exception
 	{
 		// clear previously parsed objects
 		_professors.clear();
@@ -262,8 +262,6 @@ public class Configuration
 		Room.restartIDs();
 		CourseClass.restartIDs();
 
-		// read file into a string and deserialize JSON to a type
-		String json = new String(Files.readAllBytes(Paths.get(fileName)));
 		Type type = new TypeToken<Map<String, Map<String, JsonElement> >[]>(){}.getType();
 		Map<String, Map<String, JsonElement> >[] data = getGson().fromJson(json, type);
 		for (Map<String, Map<String, JsonElement> > item : data)
@@ -295,6 +293,19 @@ public class Configuration
 			}
 		}
 		_isEmpty = false;
+	}
+	
+	public void parsePath(Path path) throws Exception
+	{
+		// read file into a string and deserialize JSON to a type
+		parseJson(new String(Files.readAllBytes(path)));
+	}
+	
+	// parse file and store parsed object
+	public void parseFile(String fileName) throws Exception
+	{
+		// read file into a string and deserialize JSON to a type
+		parsePath(Paths.get(fileName));
 	}
 	
 	public static int rand()
