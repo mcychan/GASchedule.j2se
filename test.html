@@ -9,13 +9,17 @@
 <script>
 function submitReq()
 {
+	document.getElementById("btnSubmit").setAttribute("disabled", "disabled");
 	fetch("http://localhost:1953/index.json",
 	{
 		method: "POST",
 		body: document.getElementById("data").value.split("\n").join("").split("\t").join("")
 	})
 	  .then(response => response.json())
-	  .then(data => document.getElementById("result").value = JSON.stringify(data));
+	  .then(data => {
+		document.getElementById("result").value = JSON.stringify(data);
+		document.getElementById("btnSubmit").removeAttribute("disabled");
+	  });
 }
 </script>
 <form>
@@ -422,7 +426,7 @@ Result:
 <textarea id="result" readonly="readonly" style="width: 100%; height: 88vh"></textarea>
 </div>
 <div style="clear: both; padding-left: 45vw; padding-top: 1em">
-<input type="button" value="Submit" onclick="submitReq()" />
+<input type="button" id="btnSubmit" value="Submit" onclick="submitReq()" />
 </div>
 </form>
 </html>
