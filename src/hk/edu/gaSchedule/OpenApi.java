@@ -4,18 +4,23 @@ import hk.edu.gaSchedule.algorithm.Amga2;
 import hk.edu.gaSchedule.algorithm.Configuration;
 import hk.edu.gaSchedule.algorithm.Schedule;
 import io.undertow.Undertow;
+import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.server.handlers.BlockingHandler;
 import io.undertow.util.HttpString;
 import io.undertow.util.StatusCodes;
 
 public class OpenApi {
 	public static void main(String[] args) {
-		Undertow server = Undertow.builder()
-			.addHttpListener(1953, "127.0.0.1")
-			.setHandler(new BlockingHandler(new HttpHandler() {
-				public void handleRequest(HttpServerExchange exchange) throws Exception {					
+		Undertow server = Undertow.builder().setServerOption(UndertowOptions.ENABLE_HTTP2, true)
+			.addHttpListener(1953, "127.0.0.1")			
+			.setHandler(new HttpHandler() {
+				public void handleRequest(HttpServerExchange exchange) throws Exception {
+					if (exchange.isInIoThread()) {
+                        exchange.dispatch(this);
+                        return;
+                    }
+					
 					exchange.setStatusCode(StatusCodes.SERVICE_UNAVAILABLE);
 					exchange.getResponseHeaders().put(new HttpString("Access-Control-Allow-Origin"), "*");					
 					
@@ -45,7 +50,7 @@ public class OpenApi {
 						}
 				    });					
 				}
-			})).build();
+			}).build();
 		server.start();
 	}
 
