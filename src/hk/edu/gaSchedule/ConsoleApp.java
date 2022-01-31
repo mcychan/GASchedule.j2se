@@ -25,7 +25,7 @@ public class ConsoleApp
 	        File targetFile = new File(System.getProperty("user.dir") + "/" + FILE_NAME);
 	        if(!targetFile.exists())
 	        	targetFile = new File(new File(ConsoleApp.class.getResource("/").toURI()).getParentFile() + "/" + FILE_NAME);
-	        configuration.parseFile(targetFile.getAbsolutePath());	        
+	        configuration.parse(targetFile);	        
 	        
 	        // GeneticAlgorithm<Schedule> alg = new GeneticAlgorithm<>(new Schedule(configuration), 2, 2, 80, 3);
 	        Amga2<Schedule> alg = new Amga2<>(new Schedule(configuration), 0.35f, 2, 80, 3);
