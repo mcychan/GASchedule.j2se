@@ -1,5 +1,6 @@
 package hk.edu.gaSchedule.algorithm;
 
+import java.io.File;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -250,7 +251,7 @@ public class Configuration
     	return new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ssZ").create();
     }
 
-	public void parseJson(String json) throws Exception
+	public void parse(String json) throws Exception
 	{
 		// clear previously parsed objects
 		_professors.clear();
@@ -295,17 +296,17 @@ public class Configuration
 		_isEmpty = false;
 	}
 	
-	public void parsePath(Path path) throws Exception
+	public void parse(Path path) throws Exception
 	{
 		// read file into a string and deserialize JSON to a type
-		parseJson(new String(Files.readAllBytes(path)));
+		parse(new String(Files.readAllBytes(path)));
 	}
 	
 	// parse file and store parsed object
-	public void parseFile(String fileName) throws Exception
+	public void parse(File file) throws Exception
 	{
 		// read file into a string and deserialize JSON to a type
-		parsePath(Paths.get(fileName));
+		parse(Paths.get(file.getAbsolutePath()));
 	}
 	
 	public static int rand()
