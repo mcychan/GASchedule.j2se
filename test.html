@@ -9,7 +9,7 @@
 <script>
 function submitReq()
 {
-	var blob = new Blob([document.getElementById("data").value], { type: 'application/json' });
+	var blob = new Blob([document.getElementById("data").value.split("\n").join("").split("\t").join("")], { type: 'application/json' });
 	var data = new FormData();
     data.append('file', blob);
 	fetch("http://localhost:1953/index.json",
