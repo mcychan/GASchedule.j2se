@@ -17,8 +17,8 @@ public class JsonOutput {
     private final static int ROOM_ROW_NUMBER = Constant.DAY_HOURS + 1;
 
 	private static char[] CRITERIAS = { 'R', 'S', 'L', 'P', 'G'};
-	private static String[] CRITERIAS_DESCR = { "Current room has {0}overlapping", "Current room has {0}enough seats", "Current room with {0}enough computers if they are required",
-		"Professors have {0}overlapping classes", "Student groups has {0}overlapping classes" };
+	private static String[] CRITERIAS_DESCR = { "Current room has %soverlapping", "Current room has %senough seats", "Current room with %senough computers if they are required",
+		"Professors have %soverlapping classes", "Student groups has %soverlapping classes" };
 	private static String[] PERIODS = {"", "9 - 10", "10 - 11", "11 - 12", "12 - 13", "13 - 14", "14 - 15", "15 - 16", "16 - 17", "17 - 18", "18 - 19", "19 - 20", "20 - 21" };
 	private static String[] WEEK_DAYS = { "MON", "TUE", "WED", "THU", "FRI"};
 
