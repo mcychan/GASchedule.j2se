@@ -504,6 +504,7 @@ public class Amga2<T extends Chromosome<T> >
 
 				if (repeat > (maxRepeat / 100))
 					++_crossoverProbability;
+				lastBestFit = best.getFitness();
 			}
 
 			createParentPopulation();
