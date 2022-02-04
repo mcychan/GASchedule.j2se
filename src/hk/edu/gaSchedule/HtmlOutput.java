@@ -121,9 +121,9 @@ public class HtmlOutput
 
 		StringBuilder sb = new StringBuilder();
 		if (rowspan > 1)
-			sb.append("<td style='border: 1px solid black; padding: 5px' rowspan='").append(rowspan).append("'>");
+			sb.append("<td style='border: .1em solid black; padding: .25em' rowspan='").append(rowspan).append("'>");
 		else
-			sb.append("<td style='border: 1px solid black; padding: 5px'>");
+			sb.append("<td style='border: .1em solid black; padding: .25em'>");
 
 		sb.append(content);
 		sb.append("</td>");
@@ -161,7 +161,7 @@ public class HtmlOutput
 					{
 						if(dayId == 0)
                         {
-							sb.append("<th style='border: 1px solid black; padding: 5px' scope='row' colspan='2'>").append(PERIODS[periodId]).append("</th>\n");
+							sb.append("<th style='border: .1em solid black; padding: .25em' scope='row' colspan='2'>").append(PERIODS[periodId]).append("</th>\n");
 							continue;
 						}
 
