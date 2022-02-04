@@ -27,15 +27,15 @@ public class HtmlOutput
 	private static String getTableHeader(Room room)
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.append("<tr><th style='border: 1px solid black' scope='col' colspan='2'>Room: ");
+		sb.append("<tr><th style='border: .1em solid black' scope='col' colspan='2'>Room: ");
 		sb.append(room.Name);
 		sb.append("</th>\n");
 		for(String weekDay : WEEK_DAYS)
-		sb.append("<th style='border: 1px solid black; padding: 5px; width: 15%' scope='col' rowspan='2'>").append(weekDay).append("</th>\n");
+		sb.append("<th style='border: .1em solid black; padding: .25em; width: 15%' scope='col' rowspan='2'>").append(weekDay).append("</th>\n");
 		sb.append("</tr>\n");
 		sb.append("<tr>\n");
-		sb.append("<th style='border: 1px solid black; padding: 5px'>Lab: ").append(room.Lab).append("</th>\n");
-		sb.append("<th style='border: 1px solid black; padding: 5px'>Seats: ").append(room.NumberOfSeats).append("</th>\n");
+		sb.append("<th style='border: .1em solid black; padding: .25em'>Lab: ").append(room.Lab ? "Yes" : "No").append("</th>\n");
+		sb.append("<th style='border: .1em solid black; padding: .25em'>Seats: ").append(room.NumberOfSeats).append("</th>\n");
 		sb.append("</tr>\n");
 		return sb.toString();
 	}
