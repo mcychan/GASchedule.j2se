@@ -503,7 +503,7 @@ public class Amga2<T extends Chromosome<T> >
 					repeat = 0;
 
 				if (repeat > (maxRepeat / 100))
-					++_crossoverProbability;
+					++_mutationProbability;
 				lastBestFit = best.getFitness();
 			}
 
