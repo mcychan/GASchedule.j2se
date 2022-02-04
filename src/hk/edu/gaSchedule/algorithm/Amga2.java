@@ -467,6 +467,14 @@ public class Amga2<T extends Chromosome<T> >
 		else
 			_currentArchiveSize = 0;
 	}
+	
+	private void reform()
+	{		
+		if(_crossoverProbability < 95)
+			_crossoverProbability += 1.0f;
+		else if(_mutationProbability < 30)
+			_mutationProbability += 1.0f;
+	}
 
 	// Starts and executes algorithm
 	public void run(int maxRepeat, double minFitness)
@@ -503,7 +511,7 @@ public class Amga2<T extends Chromosome<T> >
 					repeat = 0;
 
 				if (repeat > (maxRepeat / 100))
-					++_mutationProbability;
+					reform();
 				lastBestFit = best.getFitness();
 			}
 
