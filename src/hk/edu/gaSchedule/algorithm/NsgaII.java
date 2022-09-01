@@ -176,6 +176,15 @@ public class NsgaII<T extends Chromosome<T> >
 			population.add(_prototype.makeNewFromPrototype());
 	}
 	
+	private void reform()
+	{
+		Configuration.seed();
+		if(_crossoverProbability < 95)
+			_crossoverProbability += 1.0f;
+		else if(_mutationProbability < 30)
+			_mutationProbability += 1.0f;
+	}
+	
 	// Starts and executes algorithm
 	public void run(int maxRepeat, double minFitness)
     {
@@ -208,7 +217,7 @@ public class NsgaII<T extends Chromosome<T> >
 					repeat = 0;
 	
 				if (repeat > (maxRepeat / 100))		
-					++_crossoverProbability;
+					reform();
 			}				
 			
 			/******************* crossover *****************/
@@ -237,8 +246,7 @@ public class NsgaII<T extends Chromosome<T> >
 				List<Set<Integer> > newBestFront = nonDominatedSorting(totalChromosome);
 				_chromosomes = selection(newBestFront, totalChromosome);
 				lastBestFit = best.getFitness();
-			}
-			Configuration.seed();
+			}			
 			++currentGeneration;
 		}
 	}

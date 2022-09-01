@@ -215,14 +215,14 @@ public class GeneticAlgorithm<T extends Chromosome<T> >
 				repeat = 0;
 
 			if (repeat > (maxRepeat / 100))
-			{				
+			{
+				Configuration.seed();
 				setReplaceByGeneration(_replaceByGeneration * 3);
 				++_crossoverProbability;
 			}			
 
 			replacement(_chromosomes);
-
-			Configuration.seed();
+			
 			lastBestFit = best.getFitness();
 		}
 	}

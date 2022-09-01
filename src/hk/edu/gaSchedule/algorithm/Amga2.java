@@ -469,7 +469,8 @@ public class Amga2<T extends Chromosome<T> >
 	}
 	
 	private void reform()
-	{		
+	{
+		Configuration.seed();
 		if(_crossoverProbability < 95)
 			_crossoverProbability += 1.0f;
 		else if(_mutationProbability < 30)
@@ -518,8 +519,7 @@ public class Amga2<T extends Chromosome<T> >
 			createParentPopulation();
 			createOffspringPopulation();
 			mutateOffspringPopulation();
-			updateArchivePopulation();
-			Configuration.seed();
+			updateArchivePopulation();			
 			++currentGeneration;
 		}
 	}
