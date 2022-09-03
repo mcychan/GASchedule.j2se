@@ -383,7 +383,7 @@ public class Schedule implements Chromosome<Schedule>
 			else
 				score = 0;
 			_criteria[ci + 4] = !go;
-			ci += Constant.DAYS_NUM;
+			ci += Constant.CRITERIA_NUM;
 		}
 
 		// calculate fitess value based on score
