@@ -126,11 +126,13 @@ public class NsgaII<T extends Chromosome<T> >
 		distance.put(sortedKeys[0], Float.MAX_VALUE);		
 		
 		if(front.size() > 1) {
+			float diff2 = array.get(sortedKeys[front.size() - 1]).getDifference(array.get(sortedKeys[0]));
+			if(diff2 <= 0)
+				return distance;
+			
 			for(int i = 1; i < front.size() - 1; ++i) {
 				float diff = array.get(sortedKeys[i + 1]).getDifference(array.get(sortedKeys[i - 1])) * 1.0f;
-				float diff2 = array.get(sortedKeys[front.size() - 1]).getDifference(array.get(sortedKeys[0]));
-				if(diff2 > 0)
-					diff /= diff2;
+				diff /= diff2;
 				distance.put(sortedKeys[i], distance.get(sortedKeys[i]) + diff);
 			}
 		}
