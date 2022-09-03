@@ -14,6 +14,8 @@ public interface Chromosome<T extends Chromosome<T> > {
 
     public void mutation(int mutationSize, float mutationProbability);
     
+    public int getDifference(T other);
+    
     public float getDiversity();
     
     public void setDiversity(float diversity);

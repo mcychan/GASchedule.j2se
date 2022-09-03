@@ -40,7 +40,7 @@ public class Schedule implements Chromosome<Schedule>
 		_classes = new TreeMap<>();
 
 		// reserve space for flags of class requirements
-		_criteria = new boolean[_configuration.getNumberOfCourseClasses() * Constant.DAYS_NUM];
+		_criteria = new boolean[_configuration.getNumberOfCourseClasses() * Constant.CRITERIA_NUM];
 	}
 
 	// Copy constructor
@@ -203,7 +203,7 @@ public class Schedule implements Chromosome<Schedule>
 				if(time < 0)
 					time = 0;
 				else if(time >= (Constant.DAY_HOURS + 1 - dur))
-					time = Constant.DAY_HOURS - dur;
+					time = Constant.DAY_HOURS - dur;				
 
 				Reservation reservation = new Reservation(nr, day, time, room);
 
@@ -299,6 +299,11 @@ public class Schedule implements Chromosome<Schedule>
 			int room = reservation.getRoom();
 
 			int dur = cc.Duration;
+			
+			/* if(room == 0 && day == 0 && (time < 4 || (time + dur) > 8)) {
+				score = 0;
+				continue;
+			} */
 
 			// check for room overlapping of classes
 			boolean ro = false;
@@ -398,6 +403,18 @@ public class Schedule implements Chromosome<Schedule>
 
 	// Return reference to array of time-space slots
 	public List<CourseClass>[] getSlots() { return _slots; }
+	
+	@Override
+	public int getDifference(Schedule other)
+	{
+		boolean[] criteria = other.getCriteria();
+		int val = 0;
+		for(int i = 0; i < _criteria.length && i < criteria.length; ++i) {
+			if(_criteria[i] ^ criteria[i])
+				++val;
+		}
+		return val;
+	}
 
 	@Override
 	public float getDiversity() {

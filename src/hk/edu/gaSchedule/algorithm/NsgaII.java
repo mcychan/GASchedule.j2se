@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -109,18 +110,29 @@ public class NsgaII<T extends Chromosome<T> >
 	/************** calculate crowding distance function ***************************/
 	private Map<Integer, Float> calculateCrowdingDistance(Set<Integer> front, List<T> totalChromosome)
 	{
-		Map<Integer, Float> distance = front.stream().collect(Collectors.toMap(Function.identity(), m -> 0.0f));		
-		Map<Integer, Float> obj = front.stream().collect(Collectors.toMap(Function.identity(), m -> totalChromosome.get(m).getFitness()));
+		Map<Integer, Float> distance = new HashMap<>();		
+		Map<Integer, Float> obj = new HashMap<>();
+		Map<Integer, T> array = new HashMap<>();
 
+		for(Integer key : front) {
+			distance.put(key, 0.0f);
+			obj.put(key, totalChromosome.get(key).getFitness());
+			array.put(key, totalChromosome.get(key));
+		}
+		
 		int[] sortedKeys = obj.entrySet().stream()
 			.sorted(Entry.comparingByValue()).mapToInt(e -> e.getKey()).toArray();
 		distance.put(sortedKeys[front.size() - 1], Float.MAX_VALUE);
-		distance.put(sortedKeys[0], Float.MAX_VALUE);
+		distance.put(sortedKeys[0], Float.MAX_VALUE);		
 		
-		Set<Float> values = new HashSet<>(obj.values());
-		if(values.size() > 1) {
-			for(int i = 1; i < front.size() - 1; ++i)
-				distance.put(sortedKeys[i], distance.get(sortedKeys[i]) + (obj.get(sortedKeys[i + 1]) - obj.get(sortedKeys[i - 1])) / (obj.get(sortedKeys[front.size() - 1]) - obj.get(sortedKeys[0])));
+		if(front.size() > 1) {
+			for(int i = 1; i < front.size() - 1; ++i) {
+				float diff = array.get(sortedKeys[i + 1]).getDifference(array.get(sortedKeys[i - 1])) * 1.0f;
+				float diff2 = array.get(sortedKeys[front.size() - 1]).getDifference(array.get(sortedKeys[0]));
+				if(diff2 > 0)
+					diff /= diff2;
+				distance.put(sortedKeys[i], distance.get(sortedKeys[i]) + diff);
+			}
 		}
 		return distance;
 	}

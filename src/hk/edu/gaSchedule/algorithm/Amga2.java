@@ -130,28 +130,29 @@ public class Amga2<T extends Chromosome<T> >
 		distinct.forEach(e -> population.get(e).setDiversity(0.0f));
 		int[] indexArray = distinct.stream().mapToInt(x -> x).toArray();
 
-		float val = population.get(indexArray[size - 1]).getFitness() - population.get(indexArray[0]).getFitness();
+		int val = population.get(indexArray[size - 1]).getDifference(population.get(indexArray[0]));
 		if (val == 0)
 			return;
 
 		for (int j = 0; j < size; j++) {						
 			if (j == 0)
 			{
-				float[] hashArray = new float[] { 0.0f, population.get(indexArray[j]).getFitness(), population.get(indexArray[j + 1]).getFitness() };
-				float r = (hashArray[2] - hashArray[1]) / val;
+				int diff = population.get(indexArray[j + 1]).getDifference(population.get(indexArray[j]));
+				float r = diff * 1.0f / val;
 				population.get(indexArray[j]).setDiversity(population.get(indexArray[j]).getDiversity() + (r * r));
 			}
 			else if (j == size - 1)
 			{
-				float[] hashArray = new float[] { population.get(indexArray[j - 1]).getFitness(), population.get(indexArray[j]).getFitness() };
-				float l = (hashArray[1] - hashArray[0]) / val;
+				int diff = population.get(indexArray[j]).getDifference(population.get(indexArray[j - 1]));
+				float l = diff * 1.0f / val;
 				population.get(indexArray[j]).setDiversity(population.get(indexArray[j]).getDiversity() + (l * l));
 			}
 			else
 			{
-				float[] hashArray = new float[] { population.get(indexArray[j - 1]).getFitness(), population.get(indexArray[j]).getFitness(), population.get(indexArray[j + 1]).getFitness() };
-				float l = (hashArray[1] - hashArray[0]) / val;
-				float r = (hashArray[2] - hashArray[1]) / val;
+				int diff = population.get(indexArray[j]).getDifference(population.get(indexArray[j - 1]));
+				float l = diff * 1.0f / val;
+				diff = population.get(indexArray[j + 1]).getDifference(population.get(indexArray[j]));
+				float r = diff * 1.0f / val;
 				population.get(indexArray[j]).setDiversity(population.get(indexArray[j]).getDiversity() + (l * r));
 			}
 		}
@@ -224,7 +225,8 @@ public class Amga2<T extends Chromosome<T> >
 				DistanceMatrix distMatrix = new DistanceMatrix();
 				distMatrix.index1 = indexArray[i];
 				distMatrix.index2 = indexArray[j];
-				distance[j][i] = distance[i][j] = distMatrix.distance = Math.abs(mixedPopulation.get(distMatrix.index1).getFitness() - mixedPopulation.get(distMatrix.index2).getFitness());
+				distMatrix.distance = mixedPopulation.get(distMatrix.index1).getDifference(mixedPopulation.get(distMatrix.index2));
+				distance[j][i] = distance[i][j] = distMatrix.distance;
 				distArray.add(distMatrix);
 			}
 		}
