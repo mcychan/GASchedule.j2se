@@ -106,7 +106,7 @@ public class HtmlOutput
 				timeTable.put(key, roomSchedule);
 			}
 			roomSchedule[dayId] = getCourseClass(cc, solution.getCriteria(), ci);			
-			ci += Constant.DAYS_NUM;
+			ci += CRITERIAS.length;
 		}
 		return timeTable;
 	}
