@@ -120,17 +120,20 @@ public class NsgaII<T extends Chromosome<T> >
 			array.put(key, totalChromosome.get(key));
 		}
 		
+		Set<Float> existing = new HashSet<>();
+		obj = obj.entrySet().stream()
+		    .filter(entry -> existing.add(entry.getValue()))
+		    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		
 		int[] sortedKeys = obj.entrySet().stream()
 			.sorted(Entry.comparingByValue()).mapToInt(e -> e.getKey()).toArray();
-		distance.put(sortedKeys[front.size() - 1], Float.MAX_VALUE);
+		distance.put(sortedKeys[obj.size() - 1], Float.MAX_VALUE);
 		distance.put(sortedKeys[0], Float.MAX_VALUE);		
 		
-		if(front.size() > 2) {
-			float diff2 = array.get(sortedKeys[front.size() - 1]).getDifference(array.get(sortedKeys[0]));
-			if(diff2 <= 0)
-				return distance;
+		if(obj.size() > 1) {
+			float diff2 = array.get(sortedKeys[obj.size() - 1]).getDifference(array.get(sortedKeys[0]));
 
-			for(int i = 1; i < front.size() - 1; ++i) {
+			for(int i = 1; i < obj.size() - 1; ++i) {
 				float diff = array.get(sortedKeys[i + 1]).getDifference(array.get(sortedKeys[i - 1])) * 1.0f;
 				diff /= diff2;
 				distance.put(sortedKeys[i], distance.get(sortedKeys[i]) + diff);
