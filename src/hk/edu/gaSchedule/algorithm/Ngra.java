@@ -10,6 +10,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import hk.edu.gaSchedule.model.Configuration;
+
 /****************** Non-dominated Ranking Genetic Algorithm (NRGA) **********************/
 public class Ngra<T extends Chromosome<T> > extends NsgaII<T>
 {		

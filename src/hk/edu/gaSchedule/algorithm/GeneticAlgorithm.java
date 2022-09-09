@@ -2,6 +2,8 @@ package hk.edu.gaSchedule.algorithm;
 
 import java.lang.reflect.Array;
 
+import hk.edu.gaSchedule.model.Configuration;
+
 // Genetic algorithm
 public class GeneticAlgorithm<T extends Chromosome<T> >
 {

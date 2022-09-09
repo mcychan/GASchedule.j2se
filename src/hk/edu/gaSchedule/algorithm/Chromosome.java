@@ -1,5 +1,7 @@
 package hk.edu.gaSchedule.algorithm;
 
+import hk.edu.gaSchedule.model.Configuration;
+
 public interface Chromosome<T extends Chromosome<T> > {
 
 	public T makeNewFromPrototype();
