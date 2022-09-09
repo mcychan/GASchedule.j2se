@@ -1,8 +1,8 @@
 package hk.edu.gaSchedule;
 
 import hk.edu.gaSchedule.algorithm.Amga2;
-import hk.edu.gaSchedule.algorithm.Configuration;
-import hk.edu.gaSchedule.algorithm.Schedule;
+import hk.edu.gaSchedule.model.Configuration;
+import hk.edu.gaSchedule.model.Schedule;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;

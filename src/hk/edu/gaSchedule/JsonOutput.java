@@ -5,12 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import hk.edu.gaSchedule.algorithm.Configuration;
-import hk.edu.gaSchedule.algorithm.Constant;
-import hk.edu.gaSchedule.algorithm.CourseClass;
-import hk.edu.gaSchedule.algorithm.Reservation;
-import hk.edu.gaSchedule.algorithm.Room;
-import hk.edu.gaSchedule.algorithm.Schedule;
+import hk.edu.gaSchedule.model.Configuration;
+import hk.edu.gaSchedule.model.Constant;
+import hk.edu.gaSchedule.model.CourseClass;
+import hk.edu.gaSchedule.model.Reservation;
+import hk.edu.gaSchedule.model.Room;
+import hk.edu.gaSchedule.model.Schedule;
 
 public class JsonOutput {
 	private final static int ROOM_COLUMN_NUMBER = Constant.DAYS_NUM + 1;
