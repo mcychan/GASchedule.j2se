@@ -71,14 +71,14 @@ public class HtmlOutput
 	private static Map<Point, String[]> generateTimeTable(Schedule solution, Map<Point, int[]> slotTable)
 	{
 		int ci = 0;
-		Map<CourseClass, Reservation> classes = solution.getClasses();
+		Map<CourseClass, Integer> classes = solution.getClasses();
 		
 		Map<Point, String[]> timeTable = new HashMap<>();
 		
 		for (CourseClass cc : classes.keySet())
 		{
 			// coordinate of time-space slot
-			Reservation reservation = classes.get(cc);
+			Reservation reservation = Reservation.getReservation(classes.get(cc));
 			int dayId = reservation.getDay() + 1;
 			int periodId = reservation.getTime() + 1;
 			int roomId = reservation.getRoom();

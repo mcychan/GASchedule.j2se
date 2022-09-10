@@ -21,7 +21,7 @@ public class Schedule implements Chromosome<Schedule>
 
 	// Class table for chromosome
 	// Used to determine first time-space slot used by class
-	private Map<CourseClass, Reservation> _classes;
+	private Map<CourseClass, Integer> _classes;
 	
 	private float _diversity;
 	
@@ -80,14 +80,14 @@ public class Schedule implements Chromosome<Schedule>
 			int day = Configuration.rand() % Constant.DAYS_NUM;
 			int room = Configuration.rand() % nr;
 			int time = Configuration.rand() % (Constant.DAY_HOURS + 1 - dur);
-			Reservation reservation = new Reservation(nr, day, time, room);
+			Reservation reservation = Reservation.getReservation(nr, day, time, room);
 
 			// fill time-space slots, for each hour of class
 			for (int i = dur - 1; i >= 0; i--)
 				newChromosome._slots[reservation.hashCode() + i].add(courseClass);
 
 			// insert in class table of chromosome
-			newChromosome._classes.put(courseClass, reservation);
+			newChromosome._classes.put(courseClass, reservation.hashCode());
 		}
 
 		newChromosome.calculateFitness();
@@ -133,9 +133,9 @@ public class Schedule implements Chromosome<Schedule>
 			if (first)
 			{
 				CourseClass courseClass = classes[i];
-				Reservation reservation = _classes.get(courseClass);
+				Reservation reservation = Reservation.getReservation(_classes.get(courseClass));
 				// insert class from first parent into new chromosome's class table
-				n._classes.put(courseClass, reservation);
+				n._classes.put(courseClass, reservation.hashCode());
 				// all time-space slots of class are copied
 				for (int j = courseClass.Duration - 1; j >= 0; j--)
 					n._slots[reservation.hashCode() + j].add(courseClass);
@@ -143,9 +143,9 @@ public class Schedule implements Chromosome<Schedule>
 			else
 			{
 				CourseClass courseClass = parentClasses[i];
-				Reservation reservation = parent._classes.get(courseClass);
+				Reservation reservation = Reservation.getReservation(parent._classes.get(courseClass));
 				// insert class from second parent into new chromosome's class table
-				n._classes.put(courseClass, reservation);
+				n._classes.put(courseClass, reservation.hashCode());
 				// all time-space slots of class are copied
 				for (int j = courseClass.Duration - 1; j >= 0; j--)
 					n._slots[reservation.hashCode() + j].add(courseClass);
@@ -181,9 +181,9 @@ public class Schedule implements Chromosome<Schedule>
 			// check probability of crossover operation
 			if (Configuration.rand() % 100 > crossoverProbability || i == jrand) {
 				CourseClass courseClass = classes[i];
-				Reservation reservation1 = r1.getClasses().get(courseClass);
-				Reservation reservation2 = r2.getClasses().get(courseClass);
-				Reservation reservation3 = r3.getClasses().get(courseClass);
+				Reservation reservation1 = Reservation.getReservation(r1.getClasses().get(courseClass));
+				Reservation reservation2 = Reservation.getReservation(r2.getClasses().get(courseClass));
+				Reservation reservation3 = Reservation.getReservation(r3.getClasses().get(courseClass));
 				
 				// determine random position of class				
 				int dur = courseClass.Duration;
@@ -205,24 +205,24 @@ public class Schedule implements Chromosome<Schedule>
 				else if(time >= (Constant.DAY_HOURS + 1 - dur))
 					time = Constant.DAY_HOURS - dur;				
 
-				Reservation reservation = new Reservation(nr, day, time, room);
+				Reservation reservation = Reservation.getReservation(nr, day, time, room);
 
 				// fill time-space slots, for each hour of class
 				for (int j = courseClass.Duration - 1; j >= 0; --j)
 					n._slots[reservation.hashCode() + j].add(courseClass);
 
 				// insert in class table of chromosome
-				n._classes.put(courseClass, reservation);
+				n._classes.put(courseClass, reservation.hashCode());
 			} else {
 				CourseClass courseClass = parentClasses[i];
-				Reservation reservation = parent._classes.get(courseClass);
+				Reservation reservation = Reservation.getReservation(parent._classes.get(courseClass));
 				
 				// all time-space slots of class are copied
 				for (int j = courseClass.Duration - 1; j >= 0; j--)
 					n._slots[reservation.hashCode() + j].add(courseClass);
 				
 				// insert class from second parent into new chromosome's class table
-				n._classes.put(courseClass, reservation);
+				n._classes.put(courseClass, reservation.hashCode());
 			}
 		}			
 
@@ -252,14 +252,14 @@ public class Schedule implements Chromosome<Schedule>
 
 			// current time-space slot used by class
 			CourseClass cc1 = classes[mpos];
-			Reservation reservation1 = _classes.get(cc1);
+			Reservation reservation1 = Reservation.getReservation(_classes.get(cc1));
 
 			// determine position of class randomly			
 			int dur = cc1.Duration;
 			int day = Configuration.rand() % Constant.DAYS_NUM;
 			int room = Configuration.rand() % nr;
 			int time = Configuration.rand() % (Constant.DAY_HOURS + 1 - dur);
-			Reservation reservation2 = new Reservation(nr, day, time, room);
+			Reservation reservation2 = Reservation.getReservation(nr, day, time, room);
 
 			// move all time-space slots
 			for (int j = dur - 1; j >= 0; j--)
@@ -273,7 +273,7 @@ public class Schedule implements Chromosome<Schedule>
 			}
 
 			// change entry of class table to point to new time-space slots
-			_classes.put(cc1, reservation2);
+			_classes.put(cc1, reservation2.hashCode());
 		}
 
 		calculateFitness();
@@ -293,7 +293,7 @@ public class Schedule implements Chromosome<Schedule>
 		for (CourseClass cc : _classes.keySet())
 		{
 			// coordinate of time-space slot
-			Reservation reservation = _classes.get(cc);
+			Reservation reservation = Reservation.getReservation(_classes.get(cc));
 			int day = reservation.getDay();
 			int time = reservation.getTime();
 			int room = reservation.getRoom();
@@ -351,7 +351,7 @@ public class Schedule implements Chromosome<Schedule>
 	public Configuration getConfiguration() { return _configuration; }
 
 	// Returns reference to table of classes
-	public Map<CourseClass, Reservation> getClasses() { return _classes; }
+	public Map<CourseClass, Integer> getClasses() { return _classes; }
 
 	// Returns array of flags of class requiroments satisfaction
 	public boolean[] getCriteria() { return _criteria; }
@@ -402,8 +402,8 @@ public class Schedule implements Chromosome<Schedule>
 		for (CourseClass cc : _classes.keySet())
 		{
 			// coordinate of time-space slot
-			Reservation reservation = _classes.get(cc);
-			Reservation otherReservation = other.getClasses().get(cc);
+			Reservation reservation = Reservation.getReservation(_classes.get(cc));
+			Reservation otherReservation = Reservation.getReservation(other.getClasses().get(cc));
 			if (!reservation.equals(otherReservation))
 				return false;
 		}
@@ -418,7 +418,7 @@ public class Schedule implements Chromosome<Schedule>
 		for (CourseClass cc : _classes.keySet())
 		{
 			// coordinate of time-space slot
-			Reservation reservation = _classes.get(cc);
+			Reservation reservation = Reservation.getReservation(_classes.get(cc));
 			result = prime * result + ((reservation == null) ? 0 : reservation.hashCode());
 		}
 		return result;
