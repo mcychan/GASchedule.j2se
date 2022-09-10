@@ -2,13 +2,14 @@ package hk.edu.gaSchedule.algorithm;
 
 import java.lang.reflect.Array;
 
+import hk.edu.gaSchedule.model.Chromosome;
 import hk.edu.gaSchedule.model.Configuration;
 
 // Genetic algorithm
 public class GeneticAlgorithm<T extends Chromosome<T> >
 {
 	// Population of chromosomes
-	private T[] _chromosomes;
+	protected T[] _chromosomes;
 
 	// Inidicates whether chromosome belongs to best chromosome group
 	private boolean[] _bestFlags;
@@ -20,25 +21,25 @@ public class GeneticAlgorithm<T extends Chromosome<T> >
 	private int _currentBestSize;
 
 	// Number of chromosomes which are replaced in each generation by offspring
-	private int _replaceByGeneration;		
+	protected int _replaceByGeneration;		
 
 	// Prototype of chromosomes in population
-	private T _prototype;
+	protected T _prototype;
 
 	// Number of crossover points of parent's class tables
-	private int _numberOfCrossoverPoints;
+	protected int _numberOfCrossoverPoints;
 
 	// Number of classes that is moved randomly by single mutation operation
-	private int _mutationSize;
+	protected int _mutationSize;
 
 	// Probability that crossover will occurr
-	private float _crossoverProbability;
+	protected float _crossoverProbability;
 
 	// Probability that mutation will occurr
-	private float _mutationProbability;	
+	protected float _mutationProbability;	
 
 	// Initializes genetic algorithm
-	private GeneticAlgorithm(T prototype, int numberOfChromosomes, int replaceByGeneration, int trackBest)
+	protected GeneticAlgorithm(T prototype, int numberOfChromosomes, int replaceByGeneration, int trackBest)
     {
 		_currentBestSize = 0;
 		_prototype = prototype;
@@ -76,7 +77,7 @@ public class GeneticAlgorithm<T extends Chromosome<T> >
 		return _chromosomes[_bestChromosomes[0]];
     }
 	
-	private void setReplaceByGeneration(int replaceByGeneration)
+	protected void setReplaceByGeneration(int replaceByGeneration)
 	{
 		int numberOfChromosomes = _chromosomes.length;
 		int trackBest = _bestChromosomes.length;
@@ -130,7 +131,7 @@ public class GeneticAlgorithm<T extends Chromosome<T> >
 	}
 
 	// Clears best chromosome group
-	private void clearBest()
+	protected void clearBest()
     {
 		_bestFlags = new boolean[_bestFlags.length];
 		_currentBestSize = 0;
