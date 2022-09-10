@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import hk.edu.gaSchedule.algorithm.Chromosome;
-
 // Schedule chromosome
 public class Schedule implements Chromosome<Schedule>
 {
