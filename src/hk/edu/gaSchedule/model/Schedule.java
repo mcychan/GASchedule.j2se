@@ -64,7 +64,7 @@ public class Schedule implements Chromosome<Schedule>
 	}
 
 	// Makes new chromosome with same setup but with randomly chosen code
-	public Schedule makeNewFromPrototype()
+	public Schedule makeNewFromPrototype(List<Integer> positions)
 	{
 		// make new chromosome, copy chromosome setup
 		Schedule newChromosome = copy(this, true);
@@ -81,6 +81,8 @@ public class Schedule implements Chromosome<Schedule>
 			int room = Configuration.rand() % nr;
 			int time = Configuration.rand() % (Constant.DAY_HOURS + 1 - dur);
 			Reservation reservation = Reservation.getReservation(nr, day, time, room);
+			if(positions != null)
+				positions.add(reservation.hashCode());
 
 			// fill time-space slots, for each hour of class
 			for (int i = dur - 1; i >= 0; i--)
@@ -92,6 +94,11 @@ public class Schedule implements Chromosome<Schedule>
 
 		newChromosome.calculateFitness();
 		return newChromosome;
+	}
+	
+	public Schedule makeNewFromPrototype()
+	{
+		return makeNewFromPrototype(null);
 	}
 
 	// Performes crossover operation using to chromosomes and returns pointer to offspring
@@ -231,6 +238,24 @@ public class Schedule implements Chromosome<Schedule>
 		// return smart pointer to offspring
 		return n;
 	}
+	
+	private void repair(CourseClass cc1, Reservation reservation)
+	{
+		int dur = cc1.Duration;
+		// move all time-space slots
+		for (int j = dur - 1; j >= 0; j--)
+		{
+			// remove class hour from current time-space slot
+			List<CourseClass> cl = _slots[reservation.hashCode() + j];
+			cl.removeIf(cc -> cc == cc1);
+
+			// move class hour to new time-space slot
+			_slots[reservation.hashCode() + j].add(cc1);
+		}
+
+		// change entry of class table to point to new time-space slots
+		_classes.put(cc1, reservation.hashCode());
+	}
 
 	// Performs mutation on chromosome
 	public void mutation(int mutationSize, float mutationProbability)
@@ -252,7 +277,6 @@ public class Schedule implements Chromosome<Schedule>
 
 			// current time-space slot used by class
 			CourseClass cc1 = classes[mpos];
-			Reservation reservation1 = Reservation.getReservation(_classes.get(cc1));
 
 			// determine position of class randomly			
 			int dur = cc1.Duration;
@@ -261,19 +285,7 @@ public class Schedule implements Chromosome<Schedule>
 			int time = Configuration.rand() % (Constant.DAY_HOURS + 1 - dur);
 			Reservation reservation2 = Reservation.getReservation(nr, day, time, room);
 
-			// move all time-space slots
-			for (int j = dur - 1; j >= 0; j--)
-			{
-				// remove class hour from current time-space slot
-				List<CourseClass> cl = _slots[reservation1.hashCode() + j];
-				cl.removeIf(cc -> cc == cc1);
-
-				// move class hour to new time-space slot
-				_slots[reservation2.hashCode() + j].add(cc1);
-			}
-
-			// change entry of class table to point to new time-space slots
-			_classes.put(cc1, reservation2.hashCode());
+			repair(cc1, reservation2);
 		}
 
 		calculateFitness();
@@ -392,6 +404,25 @@ public class Schedule implements Chromosome<Schedule>
 	}
 	
 	@Override
+	public void updatePositions(int[] positions) {	
+		int i = 0;
+		for (CourseClass cc : _classes.keySet())
+		{
+			int dur = cc.Duration;
+			int hashCode = positions[i++];
+			if(hashCode < 0)
+				hashCode = 0;
+			else if(hashCode >= (_slots.length - dur))
+				hashCode = _slots.length - dur - 1;
+			
+			Reservation reservation = Reservation.getReservation(hashCode);			
+			repair(cc, reservation);
+		}
+
+		calculateFitness();
+	}
+	
+	@Override
 	public boolean equals(Object obj)
 	{
 		//Check for null and compare run-time types.
@@ -409,18 +440,5 @@ public class Schedule implements Chromosome<Schedule>
 		}
 		return true;
 	}
-
-	@Override
-	public int hashCode()
-	{
-		final int prime = 31;
-		int result = 1;
-		for (CourseClass cc : _classes.keySet())
-		{
-			// coordinate of time-space slot
-			Reservation reservation = Reservation.getReservation(_classes.get(cc));
-			result = prime * result + ((reservation == null) ? 0 : reservation.hashCode());
-		}
-		return result;
-	}
+	
 }

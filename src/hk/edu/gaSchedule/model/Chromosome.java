@@ -1,7 +1,11 @@
 package hk.edu.gaSchedule.model;
 
+import java.util.List;
+
 public interface Chromosome<T extends Chromosome<T> > {
 
+	public T makeNewFromPrototype(List<Integer> positions);
+	
 	public T makeNewFromPrototype();
 
     public float getFitness();
@@ -23,5 +27,7 @@ public interface Chromosome<T extends Chromosome<T> > {
     public int getRank();
     
     public void setRank(int rank);
+    
+    public void updatePositions(int[] positions);
     
 }

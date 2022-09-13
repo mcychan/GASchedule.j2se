@@ -6,21 +6,16 @@ import java.util.Map;
 public class Reservation {
 	private static Map<Integer, Reservation> _reservationPool = new HashMap<>();
 	
-	private final int nr;
+	private static int NR;
 	private final int day;
 	private final int time;
 	private final int room;
 	
-	private Reservation(int nr, int day, int time, int room) {
-		this.nr = nr;
+	private Reservation(int day, int time, int room) {		
 		this.day = day;
 		this.time = time;
 		this.room = room;
 	}	
-
-	public int getNr() {
-		return nr;
-	}
 
 	public int getDay() {
 		return day;
@@ -36,20 +31,34 @@ public class Reservation {
 	
 	public static Reservation getReservation(int hashCode)
 	{
-		return _reservationPool.get(hashCode);
+		Reservation reservation = _reservationPool.get(hashCode);
+		if(reservation == null) {
+			final int day = hashCode / (Constant.DAY_HOURS * NR);
+			final int hashCode2 = hashCode - (day * Constant.DAY_HOURS * NR);
+		    final int room = hashCode2 / Constant.DAY_HOURS;
+		    final int time = hashCode2 % Constant.DAY_HOURS;
+			reservation = new Reservation(day, time, room);
+			_reservationPool.put(hashCode, reservation);
+		}
+		return reservation;
 	}
 	
-	private static int hashCode(int nr, int day, int time, int room)
+	private static int hashCode(int day, int time, int room)
 	{
-		return day * nr * Constant.DAY_HOURS + room * Constant.DAY_HOURS + time;
+		return day * Constant.DAY_HOURS * NR + room * Constant.DAY_HOURS + time;
 	}
 	
 	public static Reservation getReservation(int nr, int day, int time, int room)
 	{
-		int hashCode = hashCode(nr, day, time, room);
+		if(nr != NR && nr > 0) {
+			NR = nr;
+			_reservationPool.clear();
+		}
+		
+		int hashCode = hashCode(day, time, room);
 		Reservation reservation = getReservation(hashCode);
 		if(reservation == null) {
-			reservation = new Reservation(nr, day, time, room);
+			reservation = new Reservation(day, time, room);
 			_reservationPool.put(hashCode, reservation);
 		}
 		return reservation;
@@ -69,7 +78,7 @@ public class Reservation {
 	@Override
 	public int hashCode()
 	{
-		return hashCode(nr, day, time, room);
+		return hashCode(day, time, room);
 	}
 	
 }

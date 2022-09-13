@@ -141,10 +141,7 @@ public class GeneticAlgorithm<T extends Chromosome<T> >
 	{
 		// initialize new population with chromosomes randomly built using prototype
 		for (int i = 0; i < population.length; ++i)
-		{
 			population[i] = _prototype.makeNewFromPrototype();
-			// addToBest(i);
-		}
 	}
 	
 	protected T[] selection(T[] population)
