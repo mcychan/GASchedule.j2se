@@ -2,7 +2,8 @@ package hk.edu.gaSchedule.algorithm;
 /*
  * Shehadeh, Hisham & Mustafa, Hossam & Tubishat, Mohammad. (2022).
  * A Hybrid Genetic Algorithm and Sperm Swarm Optimization (HGASSO) for Multimodal Functions.
- * International Journal of Applied Metaheuristic Computing. 13. 10.4018/IJAMC.292507. 
+ * International Journal of Applied Metaheuristic Computing. 13. 10.4018/IJAMC.292507.
+ * Copyright (c) 2022 Miller Cy Chan
  */
 
 import java.util.ArrayList;

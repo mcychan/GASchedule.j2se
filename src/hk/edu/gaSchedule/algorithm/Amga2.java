@@ -1,5 +1,12 @@
 package hk.edu.gaSchedule.algorithm;
 
+/*
+ * S. Tiwari, G. Fadel, and K. Deb, 
+ * “AMGA2: Improving the performance of the archive-based micro-genetic algorithm for multi-objective optimization,” 
+ * Eng. Optim., vol. 43, no. 4, pp. 371–401, 2011.
+ * Copyright (c) 2020 - 2022 Miller Cy Chan
+ */
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;

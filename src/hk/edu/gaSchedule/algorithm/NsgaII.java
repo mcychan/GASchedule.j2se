@@ -1,5 +1,11 @@
 package hk.edu.gaSchedule.algorithm;
 
+/*
+ * K.Deb, A.Pratap, S.Agrawal, T.Meyarivan, A fast and elitist multiobjective genetic algorithm: 
+ * NSGA-II, IEEE Transactions on Evolutionary Computation 6 (2002) 182–197.
+ * Copyright (c) 2020 - 2022 Miller Cy Chan
+ */
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;

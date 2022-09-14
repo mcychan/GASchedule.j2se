@@ -1,5 +1,12 @@
 package hk.edu.gaSchedule.algorithm;
 
+/*
+ * al jadaan, Omar & Rajamani, Lakishmi & Rao, C.. (2008). 
+ * Non-dominated ranked genetic algorithm for solving multi-objective optimization problems: 
+ * NRGA. Journal of Theoretical and Applied Information Technology.
+ * Copyright (c) 2020 - 2022 Miller Cy Chan
+ */
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Comparator;

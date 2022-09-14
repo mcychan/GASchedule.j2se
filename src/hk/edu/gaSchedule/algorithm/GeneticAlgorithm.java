@@ -1,5 +1,11 @@
 package hk.edu.gaSchedule.algorithm;
 
+/*
+ * Lakshmi, R. et al. “A New Biological Operator in Genetic Algorithm for Class Scheduling Problem.” 
+ * International Journal of Computer Applications 60 (2012): 6-11.
+ * Copyright (c) 2020 - 2022 Miller Cy Chan
+ */
+
 import java.lang.reflect.Array;
 
 import hk.edu.gaSchedule.model.Chromosome;
