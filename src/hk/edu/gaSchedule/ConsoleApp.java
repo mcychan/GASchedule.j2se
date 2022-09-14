@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 
 import hk.edu.gaSchedule.algorithm.Amga2;
+import hk.edu.gaSchedule.algorithm.Hgasso;
 import hk.edu.gaSchedule.model.Configuration;
 import hk.edu.gaSchedule.model.Schedule;
 
@@ -24,9 +25,9 @@ public class ConsoleApp
 	        	targetFile = new File(new File(ConsoleApp.class.getResource("/").toURI()).getParentFile() + "/" + FILE_NAME);
 	        configuration.parse(targetFile);	        
 	        
-	        // GeneticAlgorithm<Schedule> alg = new GeneticAlgorithm<>(new Schedule(configuration), 2, 2, 80, 3);
-	        Amga2<Schedule> alg = new Amga2<>(new Schedule(configuration), 0.35f, 2, 80, 3);
-	        System.out.println(String.format("GaSchedule Version %s . Making a Class Schedule Using %s.", "1.2.0", alg.toString()));
+	        Hgasso<Schedule> alg = new Hgasso<>(new Schedule(configuration), 2, 2, 80, 3);
+	        // Amga2<Schedule> alg = new Amga2<>(new Schedule(configuration), 0.35f, 2, 80, 3);
+	        System.out.println(String.format("GaSchedule Version %s . Making a Class Schedule Using %s.", "1.2.1", alg.toString()));
 	        System.out.println("Copyright (C) 2022 Miller Cy Chan.");
 	        alg.run(9999, 0.999);
 	        

@@ -64,7 +64,7 @@ public class Schedule implements Chromosome<Schedule>
 	}
 
 	// Makes new chromosome with same setup but with randomly chosen code
-	public Schedule makeNewFromPrototype(List<Integer> positions)
+	public Schedule makeNewFromPrototype(List<Float> positions)
 	{
 		// make new chromosome, copy chromosome setup
 		Schedule newChromosome = copy(this, true);
@@ -77,15 +77,18 @@ public class Schedule implements Chromosome<Schedule>
 			// determine random position of class			
 			int dur = courseClass.Duration;
 
-			int day = Configuration.rand() % Constant.DAYS_NUM;
-			int room = Configuration.rand() % nr;
-			int time = Configuration.rand() % (Constant.DAY_HOURS + 1 - dur);
+			int day = Configuration.rand(0, Constant.DAYS_NUM - 1);
+			int room = Configuration.rand(0, nr - 1);
+			int time = Configuration.rand(0, Constant.DAY_HOURS - dur);
 			Reservation reservation = Reservation.getReservation(nr, day, time, room);
-			if(positions != null)
-				positions.add(reservation.hashCode());
+			if(positions != null) {
+				positions.add(day * 1.0f / Constant.DAYS_NUM);
+				positions.add(room * 1.0f / nr);
+				positions.add(time * 1.0f / (Constant.DAY_HOURS + 1 - dur));
+			}
 
 			// fill time-space slots, for each hour of class
-			for (int i = dur - 1; i >= 0; i--)
+			for (int i = dur - 1; i >= 0; --i)
 				newChromosome._slots[reservation.hashCode() + i].add(courseClass);
 
 			// insert in class table of chromosome
@@ -118,7 +121,7 @@ public class Schedule implements Chromosome<Schedule>
 		boolean[] cp = new boolean[size];
 
 		// determine crossover point (randomly)
-		for (int i = numberOfCrossoverPoints; i > 0; i--)
+		for (int i = numberOfCrossoverPoints; i > 0; --i)
 		{
 			for(; ;)
 			{
@@ -225,7 +228,7 @@ public class Schedule implements Chromosome<Schedule>
 				Reservation reservation = Reservation.getReservation(parent._classes.get(courseClass));
 				
 				// all time-space slots of class are copied
-				for (int j = courseClass.Duration - 1; j >= 0; j--)
+				for (int j = courseClass.Duration - 1; j >= 0; --j)
 					n._slots[reservation.hashCode() + j].add(courseClass);
 				
 				// insert class from second parent into new chromosome's class table
@@ -243,7 +246,7 @@ public class Schedule implements Chromosome<Schedule>
 	{
 		int dur = cc1.Duration;
 		// move all time-space slots
-		for (int j = dur - 1; j >= 0; j--)
+		for (int j = dur - 1; j >= 0; --j)
 		{
 			// remove class hour from current time-space slot
 			List<CourseClass> cl = _slots[reservation.hashCode() + j];
@@ -270,7 +273,7 @@ public class Schedule implements Chromosome<Schedule>
 
 		CourseClass[] classes = _classes.keySet().toArray(new CourseClass[0]);
 		// move selected number of classes at random position
-		for (int i = mutationSize; i > 0; i--)
+		for (int i = mutationSize; i > 0; --i)
 		{
 			// select ranom chromosome for movement
 			int mpos = Configuration.rand() % numberOfClasses;
@@ -404,41 +407,33 @@ public class Schedule implements Chromosome<Schedule>
 	}
 	
 	@Override
-	public void updatePositions(int[] positions) {	
+	public void updatePositions(float[] positions) {
+		int nr = _configuration.getNumberOfRooms();
 		int i = 0;
 		for (CourseClass cc : _classes.keySet())
 		{
 			int dur = cc.Duration;
-			int hashCode = positions[i++];
-			if(hashCode < 0)
-				hashCode = 0;
-			else if(hashCode >= (_slots.length - dur))
-				hashCode = _slots.length - dur - 1;
+			int day = (int) (positions[i++] * Constant.DAYS_NUM);
+			int room = (int) (positions[i++] * nr);
+			int time = (int) (positions[i++] * (Constant.DAY_HOURS + 1 - dur));
 			
-			Reservation reservation = Reservation.getReservation(hashCode);			
+			if(day < 0 || day >= Constant.DAYS_NUM)
+				day = Configuration.rand(0, Constant.DAYS_NUM - 1);
+			positions[i - 1] = day * 1.0f / Constant.DAYS_NUM;
+			
+			if(room < 0 || room >= nr)
+				room = Configuration.rand(0, nr - 1);
+			positions[i - 1] = room * 1.0f / nr;			
+			
+			if(time < 0 || time >= (Constant.DAY_HOURS + 1 - dur))
+				time = Configuration.rand(0, Constant.DAY_HOURS - dur);
+			positions[i - 1] = time * 1.0f / (Constant.DAY_HOURS + 1 - dur);
+			
+			Reservation reservation = Reservation.getReservation(nr, day, time, room);			
 			repair(cc, reservation);
 		}
 
 		calculateFitness();
-	}
-	
-	@Override
-	public boolean equals(Object obj)
-	{
-		//Check for null and compare run-time types.
-		if ((obj == null) || !this.getClass().equals(obj.getClass()))
-			return false;
-
-		Schedule other = (Schedule) obj;
-		for (CourseClass cc : _classes.keySet())
-		{
-			// coordinate of time-space slot
-			Reservation reservation = Reservation.getReservation(_classes.get(cc));
-			Reservation otherReservation = Reservation.getReservation(other.getClasses().get(cc));
-			if (!reservation.equals(otherReservation))
-				return false;
-		}
-		return true;
 	}
 	
 }

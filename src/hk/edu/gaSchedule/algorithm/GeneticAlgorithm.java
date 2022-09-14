@@ -87,7 +87,7 @@ public class GeneticAlgorithm<T extends Chromosome<T> >
 	}
 
 	// Tries to add chromosomes in best chromosome group
-	private void addToBest(int chromosomeIndex)
+	protected void addToBest(int chromosomeIndex)
     {
 		// don't add if new chromosome hasn't fitness big enough for best chromosome group
 		// or it is already in the group?
@@ -151,7 +151,7 @@ public class GeneticAlgorithm<T extends Chromosome<T> >
 		result[0] = population[Configuration.rand() % population.length];
 		result[1] = population[Configuration.rand() % population.length];
 		return result;
-    }
+    }	
 	
 	protected T[] replacement(T[] population)
 	{

@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -20,7 +19,7 @@ import hk.edu.gaSchedule.model.Configuration;
 public class NsgaII<T extends Chromosome<T> >
 {
 	// Population of chromosomes
-	private List<T> _chromosomes;
+	protected List<T> _chromosomes;
 
 	// Prototype of chromosomes in population
 	protected T _prototype;
@@ -32,13 +31,13 @@ public class NsgaII<T extends Chromosome<T> >
 	protected int _numberOfCrossoverPoints;
 
 	// Number of classes that is moved randomly by single mutation operation
-	private int _mutationSize;
+	protected int _mutationSize;
 
 	// Probability that crossover will occur
 	protected float _crossoverProbability;
 
 	// Probability that mutation will occur
-	private float _mutationProbability;
+	protected float _mutationProbability;
 
 	// Initializes NsgaII
 	private NsgaII(T prototype, int numberOfChromosomes)
@@ -68,7 +67,7 @@ public class NsgaII<T extends Chromosome<T> >
     }
 	
 	/************** non-dominated sorting function ***************************/
-	private List<Set<Integer> > nonDominatedSorting(List<T> totalChromosome)
+	protected List<Set<Integer> > nonDominatedSorting(List<T> totalChromosome)
 	{
 		Set<Integer>[] s = (Set<Integer>[]) Array.newInstance(Set.class, _populationSize * 2);
 		int[] n = new int[s.length];
@@ -145,7 +144,7 @@ public class NsgaII<T extends Chromosome<T> >
 		return distance;
 	}
 	
-	private List<T> selection(List<Set<Integer> > front, List<T> totalChromosome)
+	protected List<T> selection(List<Set<Integer> > front, List<T> totalChromosome)
 	{
 		int N = 0;
 		List<Integer> newPop = new ArrayList<>();
@@ -196,7 +195,7 @@ public class NsgaII<T extends Chromosome<T> >
 			population.add(_prototype.makeNewFromPrototype());
 	}
 	
-	private void reform()
+	protected void reform()
 	{
 		Configuration.seed();
 		if(_crossoverProbability < 95)

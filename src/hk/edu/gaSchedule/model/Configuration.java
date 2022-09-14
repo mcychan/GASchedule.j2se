@@ -324,6 +324,16 @@ public class Configuration
 		return _random.nextInt(size);
 	}
 	
+	public static int rand(int min, int max)
+	{
+		return min + rand(max - min + 1);
+	}
+	
+	public static float rand(float min, float max)
+	{
+		return min + _random.nextFloat() * (max - min);
+	}
+	
 	public static void seed()
 	{
 		_random = new Random(System.currentTimeMillis());

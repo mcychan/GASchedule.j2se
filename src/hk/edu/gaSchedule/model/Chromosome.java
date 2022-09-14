@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface Chromosome<T extends Chromosome<T> > {
 
-	public T makeNewFromPrototype(List<Integer> positions);
+	public T makeNewFromPrototype(List<Float> positions);
 	
 	public T makeNewFromPrototype();
 
@@ -28,6 +28,6 @@ public interface Chromosome<T extends Chromosome<T> > {
     
     public void setRank(int rank);
     
-    public void updatePositions(int[] positions);
+    public void updatePositions(float[] positions);
     
 }
