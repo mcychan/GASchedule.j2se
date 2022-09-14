@@ -242,22 +242,22 @@ public class Schedule implements Chromosome<Schedule>
 		return n;
 	}
 	
-	private void repair(CourseClass cc1, Reservation reservation)
+	private void repair(CourseClass cc1, Reservation reservation1, Reservation reservation2)
 	{
 		int dur = cc1.Duration;
 		// move all time-space slots
 		for (int j = dur - 1; j >= 0; --j)
 		{
 			// remove class hour from current time-space slot
-			List<CourseClass> cl = _slots[reservation.hashCode() + j];
+			List<CourseClass> cl = _slots[reservation1.hashCode() + j];
 			cl.removeIf(cc -> cc == cc1);
 
 			// move class hour to new time-space slot
-			_slots[reservation.hashCode() + j].add(cc1);
+			_slots[reservation2.hashCode() + j].add(cc1);
 		}
 
 		// change entry of class table to point to new time-space slots
-		_classes.put(cc1, reservation.hashCode());
+		_classes.put(cc1, reservation2.hashCode());
 	}
 
 	// Performs mutation on chromosome
@@ -280,6 +280,7 @@ public class Schedule implements Chromosome<Schedule>
 
 			// current time-space slot used by class
 			CourseClass cc1 = classes[mpos];
+			Reservation reservation1 = Reservation.getReservation(_classes.get(cc1));
 
 			// determine position of class randomly			
 			int dur = cc1.Duration;
@@ -288,7 +289,7 @@ public class Schedule implements Chromosome<Schedule>
 			int time = Configuration.rand() % (Constant.DAY_HOURS + 1 - dur);
 			Reservation reservation2 = Reservation.getReservation(nr, day, time, room);
 
-			repair(cc1, reservation2);
+			repair(cc1, reservation1, reservation2);
 		}
 
 		calculateFitness();
@@ -412,6 +413,7 @@ public class Schedule implements Chromosome<Schedule>
 		int i = 0;
 		for (CourseClass cc : _classes.keySet())
 		{
+			Reservation reservation1 = Reservation.getReservation(_classes.get(cc));
 			int dur = cc.Duration;
 			int day = (int) (positions[i++] * Constant.DAYS_NUM);
 			int room = (int) (positions[i++] * nr);
@@ -429,8 +431,8 @@ public class Schedule implements Chromosome<Schedule>
 				time = Configuration.rand(0, Constant.DAY_HOURS - dur);
 			positions[i - 1] = time * 1.0f / (Constant.DAY_HOURS + 1 - dur);
 			
-			Reservation reservation = Reservation.getReservation(nr, day, time, room);			
-			repair(cc, reservation);
+			Reservation reservation2 = Reservation.getReservation(nr, day, time, room);			
+			repair(cc, reservation1, reservation2);
 		}
 
 		calculateFitness();

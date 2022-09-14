@@ -329,9 +329,9 @@ public class Configuration
 		return min + rand(max - min + 1);
 	}
 	
-	public static float rand(float min, float max)
+	public static double rand(float min, float max)
 	{
-		return min + _random.nextFloat() * (max - min);
+		return min + _random.nextDouble() * (max - min);
 	}
 	
 	public static void seed()
