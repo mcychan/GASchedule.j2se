@@ -419,16 +419,19 @@ public class Schedule implements Chromosome<Schedule>
 			int room = (int) (positions[i++] * nr);
 			int time = (int) (positions[i++] * (Constant.DAY_HOURS + 1 - dur));
 			
-			if(day < 0 || day >= Constant.DAYS_NUM)
-				day = Configuration.rand(0, Constant.DAYS_NUM - 1);
+			if(day < 0 || day >= Constant.DAYS_NUM) 
+				day = Math.abs(day % Constant.DAYS_NUM);
+
 			positions[i - 1] = day * 1.0f / Constant.DAYS_NUM;
 			
 			if(room < 0 || room >= nr)
-				room = Configuration.rand(0, nr - 1);
+				room = Math.abs(room % nr);
+
 			positions[i - 1] = room * 1.0f / nr;			
 			
 			if(time < 0 || time >= (Constant.DAY_HOURS + 1 - dur))
-				time = Configuration.rand(0, Constant.DAY_HOURS - dur);
+				time = Math.abs(time % (Constant.DAY_HOURS + 1 - dur));
+
 			positions[i - 1] = time * 1.0f / (Constant.DAY_HOURS + 1 - dur);
 			
 			Reservation reservation2 = Reservation.getReservation(nr, day, time, room);			
