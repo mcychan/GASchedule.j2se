@@ -407,6 +407,18 @@ public class Schedule implements Chromosome<Schedule>
 	}
 	
 	@Override
+	public void extractPositions(float[] positions) {
+		int i = 0;
+		for (CourseClass cc : _classes.keySet())
+		{
+			Reservation reservation = Reservation.getReservation(_classes.get(cc));
+			positions[i++] = reservation.getDay();
+			positions[i++] = reservation.getRoom();
+			positions[i++] = reservation.getTime();
+		}
+	}
+	
+	@Override
 	public void updatePositions(float[] positions) {
 		int nr = _configuration.getNumberOfRooms();
 		int i = 0;

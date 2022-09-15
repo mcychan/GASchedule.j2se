@@ -28,6 +28,8 @@ public interface Chromosome<T extends Chromosome<T> > {
     
     public void setRank(int rank);
     
+    public void extractPositions(float[] positions);
+    
     public void updatePositions(float[] positions);
     
 }
