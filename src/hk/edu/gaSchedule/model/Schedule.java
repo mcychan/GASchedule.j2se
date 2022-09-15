@@ -212,8 +212,8 @@ public class Schedule implements Chromosome<Schedule>
 				int time = (int) (reservation3.getTime() + etaCross * (reservation1.getTime() - reservation2.getTime()));
 				if(time < 0)
 					time = 0;
-				else if(time >= (Constant.DAY_HOURS + 1 - dur))
-					time = Constant.DAY_HOURS - dur;				
+				else if(time >= (Constant.DAY_HOURS - dur))
+					time = Constant.DAY_HOURS - 1 - dur;				
 
 				Reservation reservation = Reservation.getReservation(nr, day, time, room);
 
