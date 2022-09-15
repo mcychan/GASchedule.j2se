@@ -15,7 +15,7 @@ import hk.edu.gaSchedule.model.Configuration;
 public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 {
 	private float _sgBestScore;
-	private double _threshold = .75;
+	private double _threshold = .8;
 	private float[] _sBestScore;
 	private float[] _sgBest = null;
 	private float[][] _current_position = null;
