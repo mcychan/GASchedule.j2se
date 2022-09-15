@@ -415,7 +415,7 @@ public class Schedule implements Chromosome<Schedule>
 			int dur = cc.Duration;
 			int day = (int) Math.abs(positions[i++] % Constant.DAYS_NUM);			
 			int room = (int) Math.abs(positions[i++] % nr);			
-			int time = (int) Math.abs(positions[i++] % (Constant.DAY_HOURS - 1 - dur));
+			int time = (int) Math.abs(positions[i++] % (Constant.DAY_HOURS - dur));
 			
 			Reservation reservation2 = Reservation.getReservation(nr, day, time, room);			
 			repair(cc, _classes.get(cc), reservation2);
