@@ -79,7 +79,7 @@ public class Schedule implements Chromosome<Schedule>
 
 			int day = Configuration.rand(0, Constant.DAYS_NUM - 1);
 			int room = Configuration.rand(0, nr - 1);
-			int time = Configuration.rand(0, Constant.DAY_HOURS - dur);
+			int time = Configuration.rand(0, Constant.DAY_HOURS - 1 - dur);
 			Reservation reservation = Reservation.getReservation(nr, day, time, room);
 			if(positions != null) {
 				positions.add(day * 1.0f);
@@ -283,9 +283,9 @@ public class Schedule implements Chromosome<Schedule>
 
 			// determine position of class randomly			
 			int dur = cc1.Duration;
-			int day = Configuration.rand() % Constant.DAYS_NUM;
-			int room = Configuration.rand() % nr;
-			int time = Configuration.rand() % (Constant.DAY_HOURS + 1 - dur);
+			int day = Configuration.rand(0, Constant.DAYS_NUM - 1);
+			int room = Configuration.rand(0, nr - 1);
+			int time = Configuration.rand(0, (Constant.DAY_HOURS - 1 - dur));
 			Reservation reservation2 = Reservation.getReservation(nr, day, time, room);
 
 			repair(cc1, _classes.get(cc1), reservation2);
@@ -415,7 +415,7 @@ public class Schedule implements Chromosome<Schedule>
 			int dur = cc.Duration;
 			int day = (int) Math.abs(positions[i++] % Constant.DAYS_NUM);			
 			int room = (int) Math.abs(positions[i++] % nr);			
-			int time = (int) Math.abs(positions[i++] % (Constant.DAY_HOURS + 1 - dur));
+			int time = (int) Math.abs(positions[i++] % (Constant.DAY_HOURS - 1 - dur));
 			
 			Reservation reservation2 = Reservation.getReservation(nr, day, time, room);			
 			repair(cc, _classes.get(cc), reservation2);
