@@ -82,9 +82,9 @@ public class Schedule implements Chromosome<Schedule>
 			int time = Configuration.rand(0, Constant.DAY_HOURS - dur);
 			Reservation reservation = Reservation.getReservation(nr, day, time, room);
 			if(positions != null) {
-				positions.add(day * 1.0f / Constant.DAYS_NUM);
-				positions.add(room * 1.0f / nr);
-				positions.add(time * 1.0f / (Constant.DAY_HOURS + 1 - dur));
+				positions.add(day * 1.0f);
+				positions.add(room * 1.0f);
+				positions.add(time * 1.0f);
 			}
 
 			// fill time-space slots, for each hour of class
@@ -147,7 +147,7 @@ public class Schedule implements Chromosome<Schedule>
 				// insert class from first parent into new chromosome's class table
 				n._classes.put(courseClass, reservation.hashCode());
 				// all time-space slots of class are copied
-				for (int j = courseClass.Duration - 1; j >= 0; j--)
+				for (int j = courseClass.Duration - 1; j >= 0; --j)
 					n._slots[reservation.hashCode() + j].add(courseClass);
 			}
 			else
@@ -157,7 +157,7 @@ public class Schedule implements Chromosome<Schedule>
 				// insert class from second parent into new chromosome's class table
 				n._classes.put(courseClass, reservation.hashCode());
 				// all time-space slots of class are copied
-				for (int j = courseClass.Duration - 1; j >= 0; j--)
+				for (int j = courseClass.Duration - 1; j >= 0; --j)
 					n._slots[reservation.hashCode() + j].add(courseClass);
 			}
 
@@ -413,23 +413,9 @@ public class Schedule implements Chromosome<Schedule>
 		for (CourseClass cc : _classes.keySet())
 		{
 			int dur = cc.Duration;
-			int day = (int) (positions[i++] * Constant.DAYS_NUM);
-			if(day < 0 || day >= Constant.DAYS_NUM)
-				day = Math.abs(day % Constant.DAYS_NUM);
-
-			positions[i - 1] = day * 1.0f / Constant.DAYS_NUM;
-			
-			int room = (int) (positions[i++] * nr);
-			if(room < 0 || room >= nr)
-				room = Math.abs(room % nr);
-
-			positions[i - 1] = room * 1.0f / nr;
-			
-			int time = (int) (positions[i++] * (Constant.DAY_HOURS + 1 - dur));			
-			if(time < 0 || time >= (Constant.DAY_HOURS + 1 - dur))
-				time = Math.abs(time % (Constant.DAY_HOURS + 1 - dur));
-
-			positions[i - 1] = time * 1.0f / (Constant.DAY_HOURS + 1 - dur);
+			int day = (int) Math.abs(positions[i++] % Constant.DAYS_NUM);			
+			int room = (int) Math.abs(positions[i++] % nr);			
+			int time = (int) Math.abs(positions[i++] % (Constant.DAY_HOURS + 1 - dur));
 			
 			Reservation reservation2 = Reservation.getReservation(nr, day, time, room);			
 			repair(cc, _classes.get(cc), reservation2);
