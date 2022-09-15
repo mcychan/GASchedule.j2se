@@ -56,11 +56,6 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 		}
 	}
 	
-	protected void updatePositions(T chromosome, int pos)
-	{
-		chromosome.updatePositions(_current_position[pos]);
-	}
-	
 	private void updateVelocities(List<T> population)
 	{
 		for (int i = 0; i < population.size(); ++i) {
@@ -76,11 +71,23 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 	}
 	
 	@Override
+	protected void reform()
+	{
+		if(_threshold < .95)
+			_threshold += .01;
+		super.reform();
+	}
+	
+	@Override
 	protected List<T> replacement(List<T> population)
 	{
 		int start = (int) (population.size() * _threshold);
-		for(int i = start; i < population.size(); ++i) {
-			updatePositions(population.get(i), i);
+		for(int i = 0; i < population.size(); ++i) {
+			if(i < start)
+				population.get(i).extractPositions(_current_position[i]);
+			else
+				population.get(i).updatePositions(_current_position[i]);
+			
 			float fitness = population.get(i).getFitness();
 				
 			if(fitness > _sBestScore[i]) {
