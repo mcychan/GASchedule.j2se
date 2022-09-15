@@ -242,14 +242,14 @@ public class Schedule implements Chromosome<Schedule>
 		return n;
 	}
 	
-	private void repair(CourseClass cc1, Reservation reservation1, Reservation reservation2)
+	private void repair(CourseClass cc1, int reservation1_index, Reservation reservation2)
 	{
 		int dur = cc1.Duration;
 		// move all time-space slots
 		for (int j = dur - 1; j >= 0; --j)
 		{
 			// remove class hour from current time-space slot
-			List<CourseClass> cl = _slots[reservation1.hashCode() + j];
+			List<CourseClass> cl = _slots[reservation1_index + j];
 			cl.removeIf(cc -> cc == cc1);
 
 			// move class hour to new time-space slot
@@ -280,7 +280,6 @@ public class Schedule implements Chromosome<Schedule>
 
 			// current time-space slot used by class
 			CourseClass cc1 = classes[mpos];
-			Reservation reservation1 = Reservation.getReservation(_classes.get(cc1));
 
 			// determine position of class randomly			
 			int dur = cc1.Duration;
@@ -289,7 +288,7 @@ public class Schedule implements Chromosome<Schedule>
 			int time = Configuration.rand() % (Constant.DAY_HOURS + 1 - dur);
 			Reservation reservation2 = Reservation.getReservation(nr, day, time, room);
 
-			repair(cc1, reservation1, reservation2);
+			repair(cc1, _classes.get(cc1), reservation2);
 		}
 
 		calculateFitness();
@@ -413,29 +412,27 @@ public class Schedule implements Chromosome<Schedule>
 		int i = 0;
 		for (CourseClass cc : _classes.keySet())
 		{
-			Reservation reservation1 = Reservation.getReservation(_classes.get(cc));
 			int dur = cc.Duration;
 			int day = (int) (positions[i++] * Constant.DAYS_NUM);
-			int room = (int) (positions[i++] * nr);
-			int time = (int) (positions[i++] * (Constant.DAY_HOURS + 1 - dur));
-			
-			if(day < 0 || day >= Constant.DAYS_NUM) 
+			if(day < 0 || day >= Constant.DAYS_NUM)
 				day = Math.abs(day % Constant.DAYS_NUM);
 
 			positions[i - 1] = day * 1.0f / Constant.DAYS_NUM;
 			
+			int room = (int) (positions[i++] * nr);
 			if(room < 0 || room >= nr)
 				room = Math.abs(room % nr);
 
-			positions[i - 1] = room * 1.0f / nr;			
+			positions[i - 1] = room * 1.0f / nr;
 			
+			int time = (int) (positions[i++] * (Constant.DAY_HOURS + 1 - dur));			
 			if(time < 0 || time >= (Constant.DAY_HOURS + 1 - dur))
 				time = Math.abs(time % (Constant.DAY_HOURS + 1 - dur));
 
 			positions[i - 1] = time * 1.0f / (Constant.DAY_HOURS + 1 - dur);
 			
 			Reservation reservation2 = Reservation.getReservation(nr, day, time, room);			
-			repair(cc, reservation1, reservation2);
+			repair(cc, _classes.get(cc), reservation2);
 		}
 
 		calculateFitness();
