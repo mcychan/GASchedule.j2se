@@ -15,7 +15,7 @@ import hk.edu.gaSchedule.model.Configuration;
 public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 {
 	private float _sgBestScore;
-	private double _threshold = .75;
+	private double _threshold = .5;
 	private float[] _sBestScore;
 	private float[] _sgBest = null;
 	private float[][] _current_position = null;
@@ -71,24 +71,17 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 	}
 	
 	@Override
-	protected void reform()
-	{
-		if(_threshold < .95)
-			_threshold += .01;
-		super.reform();
-	}
-	
-	@Override
 	protected List<T> replacement(List<T> population)
 	{
 		int start = (int) (population.size() * _threshold);
 		for(int i = 0; i < population.size(); ++i) {
+			float fitness = population.get(i).getFitness();
 			if(i < start)
 				population.get(i).extractPositions(_current_position[i]);
-			else
-				population.get(i).updatePositions(_current_position[i]);
-			
-			float fitness = population.get(i).getFitness();
+			else if(fitness < _sBestScore[i]) {
+				population.get(i).updatePositions(_current_position[i]);			
+				fitness = population.get(i).getFitness();
+			}
 				
 			if(fitness > _sBestScore[i]) {
 				_sBestScore[i] = fitness;
