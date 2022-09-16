@@ -58,7 +58,8 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 	
 	private void updateVelocities(List<T> population)
 	{
-		for (int i = 0; i < population.size(); ++i) {
+		int start = (int) (population.size() * _threshold);
+		for (int i = start; i < population.size(); ++i) {
 			int dim = _velocity[i].length;
 			for(int j = 0; j < dim; ++j) {
 				_velocity[i][j] = (float) (Configuration.random() * Math.log10(Configuration.rand(7.0f, 14.0f)) * _velocity[i][j]
