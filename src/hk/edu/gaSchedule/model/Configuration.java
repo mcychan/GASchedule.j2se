@@ -331,7 +331,7 @@ public class Configuration
 	
 	public static double rand(float min, float max)
 	{
-		return min + _random.nextDouble() * (max - min);
+		return min + _random.nextGaussian() * (max - min);
 	}
 	
 	public static void seed()
