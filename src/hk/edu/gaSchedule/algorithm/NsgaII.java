@@ -112,7 +112,8 @@ public class NsgaII<T extends Chromosome<T> >
 			front.add(Q);
 		}
 		
-		return front.subList(0, front.size() - 1);
+		front.remove(front.size() - 1);
+		return front;
 	}
 	
 	/************** calculate crowding distance function ***************************/
