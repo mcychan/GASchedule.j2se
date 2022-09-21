@@ -78,7 +78,6 @@ public class NsgaII<T extends Chromosome<T> >
 		Set<Integer>[] s = (Set<Integer>[]) Array.newInstance(Set.class, _populationSize * 2);
 		int[] n = new int[s.length];
 		List<Set<Integer> > front = new ArrayList<>();
-		int[] rank = new int[s.length];
 		front.add(new HashSet<Integer>());
 		
 		for(int p = 0; p < s.length; ++p) {
@@ -91,10 +90,8 @@ public class NsgaII<T extends Chromosome<T> >
 					++n[p];
 			}
 			
-			if (n[p] == 0) {
-				rank[p] = 0;
+			if (n[p] == 0)
 	            front.get(0).add(p);
-			}
 		}
 		
 		int i = 0;
@@ -102,10 +99,8 @@ public class NsgaII<T extends Chromosome<T> >
 			Set<Integer> Q = new HashSet<>();
 			for(int p : front.get(i)) {
 				for(int q : s[p]) {
-					if (--n[q] == 0) {
-						rank[q] = i + 1;
+					if (--n[q] == 0)
 						Q.add(q);
-					}
 				}
 			}
 			++i;
@@ -121,18 +116,13 @@ public class NsgaII<T extends Chromosome<T> >
 	{
 		Map<Integer, Float> distance = new HashMap<>();		
 		Map<Integer, Float> obj = new HashMap<>();
-		Map<Integer, T> array = new HashMap<>();
 
 		for(Integer key : front) {
 			distance.put(key, 0.0f);
-			obj.put(key, totalChromosome.get(key).getFitness());
-			array.put(key, totalChromosome.get(key));
+			float fitness = totalChromosome.get(key).getFitness();
+			if(!obj.containsValue(fitness))
+				obj.put(key, fitness);
 		}
-		
-		Set<Float> existing = new HashSet<>();
-		obj = obj.entrySet().stream()
-		    .filter(entry -> existing.add(entry.getValue()))
-		    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 		
 		int[] sortedKeys = obj.entrySet().stream()
 			.sorted(Entry.comparingByValue()).mapToInt(e -> e.getKey()).toArray();
@@ -140,11 +130,10 @@ public class NsgaII<T extends Chromosome<T> >
 		distance.put(sortedKeys[0], Float.MAX_VALUE);		
 		
 		if(obj.size() > 1) {
-			float diff2 = array.get(sortedKeys[obj.size() - 1]).getDifference(array.get(sortedKeys[0]));
+			float diff2 = totalChromosome.get(sortedKeys[obj.size() - 1]).getDifference(totalChromosome.get(sortedKeys[0]));
 
 			for(int i = 1; i < obj.size() - 1; ++i) {
-				float diff = array.get(sortedKeys[i + 1]).getDifference(array.get(sortedKeys[i - 1])) * 1.0f;
-				diff /= diff2;
+				float diff = totalChromosome.get(sortedKeys[i + 1]).getDifference(totalChromosome.get(sortedKeys[i - 1])) * 1.0f / diff2;
 				distance.put(sortedKeys[i], distance.get(sortedKeys[i]) + diff);
 			}
 		}
