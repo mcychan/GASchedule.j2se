@@ -50,11 +50,11 @@ public class Schedule implements Chromosome<Schedule>
 		{
 			_configuration = c._configuration;
 			// copy code				
-			_slots = c._slots;
+			_slots = c._slots.clone();
 			_classes = c._classes;
 
 			// copy flags of class requirements
-			_criteria = c._criteria;
+			_criteria = c._criteria.clone();
 
 			// copy fitness
 			_fitness = c._fitness;
