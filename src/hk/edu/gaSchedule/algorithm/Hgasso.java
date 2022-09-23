@@ -15,6 +15,7 @@ import hk.edu.gaSchedule.model.Configuration;
 public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 {
 	private float _sgBestScore;
+	private double _threshold = .25;
 	private float[] _sBestScore;
 	private float[] _sgBest = null;
 	private float[][] _current_position = null;
@@ -23,7 +24,7 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 
 	// Initializes Hybrid Genetic Algorithm and Sperm Swarm Optimization
 	public Hgasso(T prototype, int numberOfCrossoverPoints, int mutationSize, float crossoverProbability, float mutationProbability)
-	{
+    {
 		super(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability);		
 	}
 
@@ -57,7 +58,8 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 	
 	private void updateVelocities(List<T> population)
 	{
-		for (int i = 0; i < population.size(); ++i) {
+		int start = (int) (population.size() * _threshold);
+		for (int i = start; i < population.size(); ++i) {
 			int dim = _velocity[i].length;
 			for(int j = 0; j < dim; ++j) {
 				_velocity[i][j] = (float) (Configuration.random() * Math.log10(Configuration.rand(7.0f, 14.0f)) * _velocity[i][j]
@@ -72,9 +74,12 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 	@Override
 	protected List<T> replacement(List<T> population)
 	{
+		int start = (int) (population.size() * _threshold);
 		for(int i = 0; i < population.size(); ++i) {
 			float fitness = population.get(i).getFitness();
-			if(fitness < _sBestScore[i]) {
+			if(i < start)
+				population.get(i).extractPositions(_current_position[i]);
+			else if(fitness < _sBestScore[i]) {
 				population.get(i).updatePositions(_current_position[i]);			
 				fitness = population.get(i).getFitness();
 			}
