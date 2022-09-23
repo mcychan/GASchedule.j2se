@@ -78,8 +78,6 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 				population.get(i).updatePositions(_current_position[i]);			
 				fitness = population.get(i).getFitness();
 			}
-			else
-				population.get(i).extractPositions(_current_position[i]);
 				
 			if(fitness > _sBestScore[i]) {
 				_sBestScore[i] = fitness;
