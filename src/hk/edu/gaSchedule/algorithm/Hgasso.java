@@ -56,10 +56,12 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 		}
 	}
 	
-	private void updateVelocities(List<T> population)
+	private void updateVelocities(List<T> population, boolean[] motility)
 	{
-		int start = (int) (population.size() * _threshold);
-		for (int i = start; i < population.size(); ++i) {
+		for (int i = 0; i < population.size(); ++i) {
+			if(!motility[i])
+				continue;
+			
 			int dim = _velocity[i].length;
 			for(int j = 0; j < dim; ++j) {
 				_velocity[i][j] = (float) (Configuration.random() * Math.log10(Configuration.rand(7.0f, 14.0f)) * _velocity[i][j]
@@ -75,12 +77,15 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 	protected List<T> replacement(List<T> population)
 	{
 		int start = (int) (population.size() * _threshold);
+		boolean[] motility = new boolean[population.size()];
+		
 		for(int i = 0; i < population.size(); ++i) {
 			float fitness = population.get(i).getFitness();
 			if(i < start)
 				population.get(i).extractPositions(_current_position[i]);
 			else if(fitness < _sBestScore[i]) {
-				population.get(i).updatePositions(_current_position[i]);			
+				population.get(i).updatePositions(_current_position[i]);
+				motility[i] = true;
 				fitness = population.get(i).getFitness();
 			}
 				
@@ -95,7 +100,7 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 			}
 		}
 		
-		updateVelocities(population);
+		updateVelocities(population, motility);
 		return super.replacement(population);
 	}
 	
