@@ -99,7 +99,6 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 			if(fitness > _sgBestScore) {
 				_sgBestScore = fitness;
 				_sgBest = _current_position[i].clone();
-				_motility[i] = !_motility[i];
 			}
 		}
 		
