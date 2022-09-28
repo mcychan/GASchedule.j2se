@@ -16,6 +16,7 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 {
 	private float _sgBestScore;
 	private double _threshold = .25;
+	private boolean[] _motility;
 	private float[] _sBestScore;
 	private float[] _sgBest = null;
 	private float[][] _current_position = null;
@@ -46,6 +47,7 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 				_sBest = new float[numberOfChromosomes][size];
 				_sgBest = new float[numberOfChromosomes];
 				_sBestScore = new float[numberOfChromosomes];
+				_motility = new boolean[numberOfChromosomes];
 			}
 			
 			_sBestScore[i] = population.get(i).getFitness();
@@ -56,10 +58,10 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 		}
 	}
 	
-	private void updateVelocities(List<T> population, boolean[] motility)
+	private void updateVelocities(List<T> population)
 	{
 		for (int i = 0; i < population.size(); ++i) {
-			if(!motility[i])
+			if(!_motility[i])
 				continue;
 			
 			int dim = _velocity[i].length;
@@ -77,7 +79,6 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 	protected List<T> replacement(List<T> population)
 	{
 		int start = (int) (population.size() * _threshold);
-		boolean[] motility = new boolean[population.size()];
 		
 		for(int i = 0; i < population.size(); ++i) {
 			float fitness = population.get(i).getFitness();
@@ -86,22 +87,23 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 			else if(fitness < _sBestScore[i]) {
 				population.get(i).updatePositions(_current_position[i]);
 				fitness = population.get(i).getFitness();
+				_motility[i] = true;
 			}
 				
 			if(fitness > _sBestScore[i]) {
-				_sBestScore[i] = fitness;
-				motility[i] = true;
+				_sBestScore[i] = fitness;				
 				_sBest[i] = _current_position[i].clone();
+				_motility[i] = !_motility[i];
 			}
 			
 			if(fitness > _sgBestScore) {
 				_sgBestScore = fitness;
-				motility[i] = true;
 				_sgBest = _current_position[i].clone();
+				_motility[i] = !_motility[i];
 			}
 		}
 		
-		updateVelocities(population, motility);
+		updateVelocities(population);
 		return super.replacement(population);
 	}
 	
