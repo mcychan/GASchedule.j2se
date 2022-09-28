@@ -92,13 +92,13 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 				
 			if(fitness > _sBestScore[i]) {
 				_sBestScore[i] = fitness;				
-				_sBest[i] = _current_position[i].clone();
-				_motility[i] = !_motility[i];
+				_sBest[i] = _current_position[i].clone();				
 			}
 			
 			if(fitness > _sgBestScore) {
 				_sgBestScore = fitness;
 				_sgBest = _current_position[i].clone();
+				_motility[i] = !_motility[i];
 			}
 		}
 		
