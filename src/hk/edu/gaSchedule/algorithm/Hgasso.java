@@ -24,7 +24,7 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 
 	// Initializes Hybrid Genetic Algorithm and Sperm Swarm Optimization
 	public Hgasso(T prototype, int numberOfCrossoverPoints, int mutationSize, float crossoverProbability, float mutationProbability)
-    {
+	{
 		super(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability);		
 	}
 
@@ -85,17 +85,18 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 				population.get(i).extractPositions(_current_position[i]);
 			else if(fitness < _sBestScore[i]) {
 				population.get(i).updatePositions(_current_position[i]);
-				motility[i] = true;
 				fitness = population.get(i).getFitness();
 			}
 				
 			if(fitness > _sBestScore[i]) {
 				_sBestScore[i] = fitness;
+				motility[i] = true;
 				_sBest[i] = _current_position[i].clone();
 			}
 			
 			if(fitness > _sgBestScore) {
 				_sgBestScore = fitness;
+				motility[i] = true;
 				_sgBest = _current_position[i].clone();
 			}
 		}
