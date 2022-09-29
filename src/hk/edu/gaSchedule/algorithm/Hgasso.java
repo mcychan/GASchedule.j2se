@@ -95,6 +95,9 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 				_sgBest = _current_position[i].clone();
 				_motility[i] = !_motility[i];
 			}
+			
+			if(_repeatRatio > _sBestScore[i])
+				_sBestScore[i] -= _repeatRatio * .25f;
 		}
 		
 		updateVelocities(population);
