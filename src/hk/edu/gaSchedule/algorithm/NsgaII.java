@@ -44,6 +44,8 @@ public class NsgaII<T extends Chromosome<T> >
 
 	// Probability that mutation will occur
 	protected float _mutationProbability;
+	
+	protected float _repeatRatio;
 
 	// Initializes NsgaII
 	private NsgaII(T prototype, int numberOfChromosomes)
@@ -230,7 +232,8 @@ public class NsgaII<T extends Chromosome<T> >
 					++repeat;
 				else
 					repeat = 0;
-	
+
+				_repeatRatio = repeat * 100.0f / maxRepeat;
 				if (repeat > (maxRepeat / 100))		
 					reform();
 			}				
