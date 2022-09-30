@@ -14,7 +14,7 @@ import hk.edu.gaSchedule.model.Configuration;
 
 public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 {
-	private float _decline = .25f;
+	private float _climax = .75f;
 	private float _sgBestScore;
 	private boolean[] _motility;
 	private float[] _sBestScore;
@@ -78,7 +78,6 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 	@Override
 	protected List<T> replacement(List<T> population)
 	{
-		float climax = 1 - _decline;
 		int populationSize = population.size();
 		
 		for(int i = 0; i < populationSize; ++i) {
@@ -100,14 +99,12 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 				population.get(i).extractPositions(_current_position[i]);
 				_sgBest = _current_position[i].clone();
 				_motility[i] = !_motility[i];
-			}
-			
-			if(_repeatRatio > _sBestScore[i])
-				_sBestScore[i] -= _repeatRatio * _decline;
-			if(_repeatRatio > climax && _sgBestScore > climax) {
+			}			
+
+			if(_repeatRatio > _climax && _sgBestScore > _climax) {
 				if (i > (populationSize * _sgBestScore)) {
 					population.get(i).updatePositions(_current_position[i]);
-					_motility[i] = true;
+					_motility[i] = !_motility[i];
 				}					
 			}
 		}
