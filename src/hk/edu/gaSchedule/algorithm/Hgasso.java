@@ -104,7 +104,7 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 				_sBestScore[i] -= _repeatRatio * _decline;
 			if(_repeatRatio > climax && _sgBestScore > climax) {
 				if (i > (populationSize * _sgBestScore)) {
-					fitness = population.get(i).getFitness();
+					population.get(i).updatePositions(_current_position[i]);
 					_motility[i] = true;
 				}					
 			}
