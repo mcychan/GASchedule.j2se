@@ -79,8 +79,9 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 	protected List<T> replacement(List<T> population)
 	{
 		float climax = 1 - _decline;
+		int populationSize = population.size();
 		
-		for(int i = 0; i < population.size(); ++i) {
+		for(int i = 0; i < populationSize; ++i) {
 			float fitness = population.get(i).getFitness();
 			if(fitness < _sBestScore[i]) {
 				population.get(i).updatePositions(_current_position[i]);
@@ -101,8 +102,12 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 			
 			if(_repeatRatio > _sBestScore[i])
 				_sBestScore[i] -= _repeatRatio * _decline;
-			if(_repeatRatio > climax && _sgBestScore > climax)
-				_sBestScore[i] -= _repeatRatio * _decline;
+			if(_repeatRatio > climax && _sgBestScore > climax) {
+				if (i > (populationSize * _sgBestScore)) {
+					fitness = population.get(i).getFitness();
+					_motility[i] = true;
+				}					
+			}
 		}
 		
 		updateVelocities(population);
