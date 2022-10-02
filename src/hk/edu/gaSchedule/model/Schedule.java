@@ -425,9 +425,9 @@ public class Schedule implements Chromosome<Schedule>
 		for (CourseClass cc : _classes.keySet())
 		{
 			int dur = cc.Duration;
-			int day = (int) Math.abs(positions[i++] % Constant.DAYS_NUM);			
-			int room = (int) Math.abs(positions[i++] % nr);			
-			int time = (int) Math.abs(positions[i++] % (Constant.DAY_HOURS - dur));
+			int day = Math.abs((int) positions[i++] % Constant.DAYS_NUM);			
+			int room = Math.abs((int) positions[i++] % nr);			
+			int time = Math.abs((int) positions[i++] % (Constant.DAY_HOURS - dur));
 			
 			Reservation reservation2 = Reservation.getReservation(nr, day, time, room);			
 			repair(cc, _classes.get(cc), reservation2);
