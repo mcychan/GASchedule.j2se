@@ -21,7 +21,7 @@ public class Emosoa<T extends Chromosome<T> > extends NsgaII<T>
 	private float[] _gBest = null;
 	private float[][] _current_position = null;
 
-	// Initializes Hybrid Genetic Algorithm and Sperm Swarm Optimization
+	// Initializes Evolutionary multi-objective seagull optimization algorithm
 	public Emosoa(T prototype, int numberOfCrossoverPoints, int mutationSize, float crossoverProbability, float mutationProbability)
 	{
 		super(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability);		
@@ -32,15 +32,15 @@ public class Emosoa<T extends Chromosome<T> > extends NsgaII<T>
 		int b = 1;
 		float Fc = 2f - _currentGeneration * (2f / _max_iterations);
 		double tau = 2 * Math.PI;
-		for (int i = 0; i < population.size(); ++i) {			
+		for (int i = 0; i < population.size(); ++i) {
 			int dim = _current_position[i].length;
-			for(int j = 0; j < dim; ++j) {				
+			for(int j = 0; j < dim; ++j) {
 				double A1 = 2 * Fc * Configuration.random() - Fc;
 				double ll = (Fc - 1) * Configuration.random() + 1;
 
-				double D_alphs = Fc * _current_position[i][j] + A1 * (_gBest[j] - _current_position[i][j]);				
+				double D_alphs = Fc * _current_position[i][j] + A1 * (_gBest[j] - _current_position[i][j]);
 				_current_position[i][j] = (float)(D_alphs * Math.exp(b * ll) * Math.cos(ll * tau) + _gBest[j]);
-			}			
+			}
 		}
 	}
 	
@@ -59,7 +59,7 @@ public class Emosoa<T extends Chromosome<T> > extends NsgaII<T>
 				
 			if(fitness > _bestScore[i]) {
 				_bestScore[i] = fitness;
-				population.get(i).extractPositions(_current_position[i]);				
+				population.get(i).extractPositions(_current_position[i]);
 			}
 			
 			if(fitness > _gBestScore) {
@@ -87,7 +87,7 @@ public class Emosoa<T extends Chromosome<T> > extends NsgaII<T>
 			List<Float> positions = new ArrayList<>();
 			
 			// add new search agent to population
-			population.add(_prototype.makeNewFromPrototype(positions));			
+			population.add(_prototype.makeNewFromPrototype(positions));
 			
 			if(i < 1) {				
 				size = positions.size();
@@ -116,7 +116,7 @@ public class Emosoa<T extends Chromosome<T> > extends NsgaII<T>
 		double lastBestFit = 0.0;
 
 		while(_currentGeneration < _max_iterations)
-		{				
+		{
 			T best = getResult();
 			if(_currentGeneration > 0) {
 				String status = String.format("\rFitness: %f\t Generation: %d", best.getFitness(), _currentGeneration);
