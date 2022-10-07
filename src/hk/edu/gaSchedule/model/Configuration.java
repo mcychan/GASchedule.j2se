@@ -329,7 +329,7 @@ public class Configuration
 		return min + rand(max - min + 1);
 	}
 	
-	public static double rand(float min, float max)
+	public static double rand(double min, double max)
 	{
 		return min + _random.nextDouble() * (max - min);
 	}
