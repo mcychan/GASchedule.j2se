@@ -29,17 +29,22 @@ public class Emosoa<T extends Chromosome<T> > extends NsgaII<T>
 	
 	private void exploitation(List<T> population)
 	{
-		int b = 1;
-		float Fc = 2f - _currentGeneration * (2f / _max_iterations);
 		double tau = 2 * Math.PI;
+		
+		double A = 2 - _currentGeneration * (2.0 / _max_iterations);
+		double B = (2 * A * A) * Configuration.random();
+		
 		for (int i = 0; i < population.size(); ++i) {
 			int dim = _current_position[i].length;
 			for(int j = 0; j < dim; ++j) {
-				double A1 = 2 * Fc * Configuration.random() - Fc;
-				double ll = (Fc - 1) * Configuration.random() + 1;
+				double C = A * _current_position[i][j];
+				double M = B * (_gBest[j] - _current_position[i][j]);
+				double D = Math.abs(C + M);
+				double theta = Configuration.rand(0d, tau);
+				double r = Math.exp(theta);
 
-				double D_alphs = Fc * _current_position[i][j] + A1 * (_gBest[j] - _current_position[i][j]);
-				_current_position[i][j] = (float)(D_alphs * Math.exp(b * ll) * Math.cos(ll * tau) + _gBest[j]);
+				double x = r * Math.cos(theta), y = r * Math.sin(theta), z = r * theta;
+				_current_position[i][j] = (float)(D * x * y * z + _gBest[j]);
 			}
 		}
 	}
