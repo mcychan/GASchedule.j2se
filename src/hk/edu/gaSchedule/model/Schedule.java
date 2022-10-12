@@ -78,8 +78,8 @@ public class Schedule implements Chromosome<Schedule>
 			int dur = courseClass.Duration;
 
 			Reservation reservation = null;
-			int retry = 0;
-			while(retry++ < dur) {
+			int retry = 0, maxRetry = newChromosome._slots.length / dur;
+			while(retry++ < maxRetry) {
 				int day = Configuration.rand(0, Constant.DAYS_NUM - 1);
 				int room = Configuration.rand(0, nr - 1);
 				int time = Configuration.rand(0, (Constant.DAY_HOURS - 1 - dur));				
@@ -293,8 +293,8 @@ public class Schedule implements Chromosome<Schedule>
 			int dur = cc1.Duration;
 			
 			Reservation reservation2 = null;
-			int retry = 0;
-			while(retry++ < dur) {
+			int retry = 0, maxRetry = _slots.length / dur;
+			while(retry++ < maxRetry) {
 				int day = Configuration.rand(0, Constant.DAYS_NUM - 1);
 				int room = Configuration.rand(0, nr - 1);
 				int time = Configuration.rand(0, (Constant.DAY_HOURS - 1 - dur));				
