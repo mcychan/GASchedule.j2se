@@ -393,11 +393,12 @@ public class Schedule implements Chromosome<Schedule>
 	@Override
 	public int getDifference(Schedule other)
 	{
-		List<CourseClass>[] slots = other._slots;
+		boolean[] criteria = other.getCriteria();
 		int val = 0;
-		for(int i = 0; i < _slots.length && i < slots.length; ++i)
-			val += Math.abs(_slots[i].size() - slots[i].size());
-
+		for(int i = 0; i < _criteria.length && i < criteria.length; ++i) {
+			if(_criteria[i] ^ criteria[i])
+				++val;
+		}
 		return val;
 	}
 
