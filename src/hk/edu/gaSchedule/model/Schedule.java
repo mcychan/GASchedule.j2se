@@ -250,9 +250,21 @@ public class Schedule implements Chromosome<Schedule>
 		return n;
 	}
 	
-	private void repair(CourseClass cc1, int reservation1_index, Reservation reservation2)
+	private int repair(CourseClass cc1, int reservation1_index, Reservation reservation2)
 	{
 		int dur = cc1.Duration;
+		int nr = _configuration.getNumberOfRooms();
+		int retry = reservation2 != null ? 1 : 0, maxRetry = _slots.length / dur;
+		while(retry++ < maxRetry) {
+			if(reservation2 != null && !Criteria.isRoomOverlapped(_slots, reservation2, dur))
+				break;
+			
+			int day = Configuration.rand(0, Constant.DAYS_NUM - 1);
+			int room = Configuration.rand(0, nr - 1);
+			int time = Configuration.rand(0, (Constant.DAY_HOURS - 1 - dur));				
+			reservation2 = Reservation.getReservation(nr, day, time, room);							
+		}
+		
 		// move all time-space slots
 		for (int j = dur - 1; j >= 0; --j)
 		{
@@ -266,6 +278,7 @@ public class Schedule implements Chromosome<Schedule>
 
 		// change entry of class table to point to new time-space slots
 		_classes.put(cc1, reservation2.hashCode());
+		return reservation2.hashCode();
 	}
 
 	// Performs mutation on chromosome
@@ -277,7 +290,6 @@ public class Schedule implements Chromosome<Schedule>
 
 		// number of classes
 		int numberOfClasses = _classes.size();
-		int nr = _configuration.getNumberOfRooms();
 
 		CourseClass[] classes = _classes.keySet().toArray(new CourseClass[0]);
 		// move selected number of classes at random position
@@ -288,23 +300,8 @@ public class Schedule implements Chromosome<Schedule>
 
 			// current time-space slot used by class
 			CourseClass cc1 = classes[mpos];
-
-			// determine position of class randomly			
-			int dur = cc1.Duration;
 			
-			Reservation reservation2 = null;
-			int retry = 0, maxRetry = _slots.length / dur;
-			while(retry++ < maxRetry) {
-				int day = Configuration.rand(0, Constant.DAYS_NUM - 1);
-				int room = Configuration.rand(0, nr - 1);
-				int time = Configuration.rand(0, (Constant.DAY_HOURS - 1 - dur));				
-				reservation2 = Reservation.getReservation(nr, day, time, room);
-	
-				if(!Criteria.isRoomOverlapped(_slots, reservation2, dur))
-					break;				
-			}
-			
-			repair(cc1, _classes.get(cc1), reservation2);
+			repair(cc1, _classes.get(cc1), null);
 		}
 
 		calculateFitness();
@@ -440,12 +437,16 @@ public class Schedule implements Chromosome<Schedule>
 		for (CourseClass cc : _classes.keySet())
 		{
 			int dur = cc.Duration;
-			int day = Math.abs((int) positions[i++] % Constant.DAYS_NUM);			
-			int room = Math.abs((int) positions[i++] % nr);			
-			int time = Math.abs((int) positions[i++] % (Constant.DAY_HOURS - dur));
+			int day = Math.abs((int) positions[i] % Constant.DAYS_NUM);			
+			int room = Math.abs((int) positions[i + 1] % nr);			
+			int time = Math.abs((int) positions[i + 2] % (Constant.DAY_HOURS - dur));
 			
 			Reservation reservation2 = Reservation.getReservation(nr, day, time, room);			
-			repair(cc, _classes.get(cc), reservation2);
+			reservation2 = Reservation.getReservation(repair(cc, _classes.get(cc), reservation2));
+			
+			positions[i++] = reservation2.getDay();
+			positions[i++] = reservation2.getRoom();
+			positions[i++] = reservation2.getTime();
 		}
 
 		calculateFitness();
