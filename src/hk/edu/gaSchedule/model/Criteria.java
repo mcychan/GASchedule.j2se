@@ -27,16 +27,17 @@ public class Criteria {
 		return !cc.LabRequired || (cc.LabRequired && r.Lab);
 	}
 	
-	static boolean[] isOverlappedProfStudentGrp(List<CourseClass>[] slots, CourseClass cc, int numberOfRooms, int timeId, int dur)
+	static boolean[] isOverlappedProfStudentGrp(List<CourseClass>[] slots, CourseClass cc, int numberOfRooms, int timeId)
 	{
 		boolean po = false, go = false;
 		
+		int dur = cc.Duration;
 		// check overlapping of classes for professors and student groups
 		for (int i = numberOfRooms; i > 0; --i, timeId += Constant.DAY_HOURS)
 		{
 			// for each hour of class
 			for (int j = dur - 1; j >= 0; --j)
-			{
+			{				
 				// check for overlapping with other classes at same time
 				List<CourseClass> cl = slots[timeId + j];
 				for (CourseClass cc1 : cl)

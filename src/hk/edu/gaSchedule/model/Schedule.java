@@ -77,14 +77,22 @@ public class Schedule implements Chromosome<Schedule>
 			// determine random position of class			
 			int dur = courseClass.Duration;
 
-			int day = Configuration.rand(0, Constant.DAYS_NUM - 1);
-			int room = Configuration.rand(0, nr - 1);
-			int time = Configuration.rand(0, Constant.DAY_HOURS - 1 - dur);
-			Reservation reservation = Reservation.getReservation(nr, day, time, room);
+			Reservation reservation = null;
+			int retry = 0;
+			while(retry++ < dur) {
+				int day = Configuration.rand(0, Constant.DAYS_NUM - 1);
+				int room = Configuration.rand(0, nr - 1);
+				int time = Configuration.rand(0, (Constant.DAY_HOURS - 1 - dur));				
+				reservation = Reservation.getReservation(nr, day, time, room);
+	
+				if(!Criteria.isRoomOverlapped(newChromosome._slots, reservation, dur))
+					break;				
+			}
+
 			if(positions != null) {
-				positions.add(day * 1.0f);
-				positions.add(room * 1.0f);
-				positions.add(time * 1.0f);
+				positions.add(reservation.getDay() * 1.0f);
+				positions.add(reservation.getRoom() * 1.0f);
+				positions.add(reservation.getTime() * 1.0f);
 			}
 
 			// fill time-space slots, for each hour of class
@@ -283,11 +291,19 @@ public class Schedule implements Chromosome<Schedule>
 
 			// determine position of class randomly			
 			int dur = cc1.Duration;
-			int day = Configuration.rand(0, Constant.DAYS_NUM - 1);
-			int room = Configuration.rand(0, nr - 1);
-			int time = Configuration.rand(0, (Constant.DAY_HOURS - 1 - dur));
-			Reservation reservation2 = Reservation.getReservation(nr, day, time, room);
-
+			
+			Reservation reservation2 = null;
+			int retry = 0;
+			while(retry++ < dur) {
+				int day = Configuration.rand(0, Constant.DAYS_NUM - 1);
+				int room = Configuration.rand(0, nr - 1);
+				int time = Configuration.rand(0, (Constant.DAY_HOURS - 1 - dur));				
+				reservation2 = Reservation.getReservation(nr, day, time, room);
+	
+				if(!Criteria.isRoomOverlapped(_slots, reservation2, dur))
+					break;				
+			}
+			
 			repair(cc1, _classes.get(cc1), reservation2);
 		}
 
@@ -337,7 +353,7 @@ public class Schedule implements Chromosome<Schedule>
 			else
 				score /= 2;
 
-			boolean[] total_overlap = Criteria.isOverlappedProfStudentGrp(_slots, cc, numberOfRooms, day * daySize + time, dur);
+			boolean[] total_overlap = Criteria.isOverlappedProfStudentGrp(_slots, cc, numberOfRooms, day * daySize + time);
 
 			// professors have no overlapping classes?
 			if (!total_overlap[0])
@@ -377,12 +393,11 @@ public class Schedule implements Chromosome<Schedule>
 	@Override
 	public int getDifference(Schedule other)
 	{
-		boolean[] criteria = other.getCriteria();
+		List<CourseClass>[] slots = other._slots;
 		int val = 0;
-		for(int i = 0; i < _criteria.length && i < criteria.length; ++i) {
-			if(_criteria[i] ^ criteria[i])
-				++val;
-		}
+		for(int i = 0; i < _slots.length && i < slots.length; ++i)
+			val += Math.abs(_slots[i].size() - slots[i].size());
+
 		return val;
 	}
 
