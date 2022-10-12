@@ -254,6 +254,14 @@ public class Schedule implements Chromosome<Schedule>
 	{
 		int dur = cc1.Duration;
 		int nr = _configuration.getNumberOfRooms();
+		
+		for (int j = dur - 1; j >= 0; --j)
+		{
+			// remove class hour from current time-space slot
+			List<CourseClass> cl = _slots[reservation1_index + j];
+			cl.removeIf(cc -> cc == cc1);
+		}
+				
 		int retry = reservation2 != null ? 1 : 0, maxRetry = _slots.length / dur;
 		while(retry++ < maxRetry) {
 			if(reservation2 != null && !Criteria.isRoomOverlapped(_slots, reservation2, dur))
@@ -265,13 +273,8 @@ public class Schedule implements Chromosome<Schedule>
 			reservation2 = Reservation.getReservation(nr, day, time, room);							
 		}
 		
-		// move all time-space slots
 		for (int j = dur - 1; j >= 0; --j)
 		{
-			// remove class hour from current time-space slot
-			List<CourseClass> cl = _slots[reservation1_index + j];
-			cl.removeIf(cc -> cc == cc1);
-
 			// move class hour to new time-space slot
 			_slots[reservation2.hashCode() + j].add(cc1);
 		}
