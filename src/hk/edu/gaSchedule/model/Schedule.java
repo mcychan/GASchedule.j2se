@@ -77,17 +77,10 @@ public class Schedule implements Chromosome<Schedule>
 			// determine random position of class			
 			int dur = courseClass.Duration;
 
-			Reservation reservation = null;
-			int retry = 0, maxRetry = newChromosome._slots.length / dur;
-			while(retry++ < maxRetry) {
-				int day = Configuration.rand(0, Constant.DAYS_NUM - 1);
-				int room = Configuration.rand(0, nr - 1);
-				int time = Configuration.rand(0, (Constant.DAY_HOURS - 1 - dur));				
-				reservation = Reservation.getReservation(nr, day, time, room);
-	
-				if(!Criteria.isRoomOverlapped(newChromosome._slots, reservation, dur))
-					break;				
-			}
+			int day = Configuration.rand(0, Constant.DAYS_NUM - 1);
+			int room = Configuration.rand(0, nr - 1);
+			int time = Configuration.rand(0, (Constant.DAY_HOURS - 1 - dur));				
+			Reservation reservation = Reservation.getReservation(nr, day, time, room);
 
 			if(positions != null) {
 				positions.add(reservation.getDay() * 1.0f);
@@ -250,7 +243,7 @@ public class Schedule implements Chromosome<Schedule>
 		return n;
 	}
 	
-	private int repair(CourseClass cc1, int reservation1_index, Reservation reservation2)
+	private void repair(CourseClass cc1, int reservation1_index, Reservation reservation2)
 	{
 		int dur = cc1.Duration;
 		int nr = _configuration.getNumberOfRooms();
@@ -262,11 +255,7 @@ public class Schedule implements Chromosome<Schedule>
 			cl.removeIf(cc -> cc == cc1);
 		}
 				
-		int retry = reservation2 != null ? 1 : 0, maxRetry = _slots.length / dur;
-		while(retry++ < maxRetry) {
-			if(reservation2 != null && !Criteria.isRoomOverlapped(_slots, reservation2, dur))
-				break;
-			
+		if(reservation2 == null) {			
 			int day = Configuration.rand(0, Constant.DAYS_NUM - 1);
 			int room = Configuration.rand(0, nr - 1);
 			int time = Configuration.rand(0, (Constant.DAY_HOURS - 1 - dur));				
@@ -281,7 +270,6 @@ public class Schedule implements Chromosome<Schedule>
 
 		// change entry of class table to point to new time-space slots
 		_classes.put(cc1, reservation2.hashCode());
-		return reservation2.hashCode();
 	}
 
 	// Performs mutation on chromosome
@@ -446,7 +434,7 @@ public class Schedule implements Chromosome<Schedule>
 			int time = Math.abs((int) positions[i + 2] % (Constant.DAY_HOURS - dur));
 			
 			Reservation reservation2 = Reservation.getReservation(nr, day, time, room);			
-			reservation2 = Reservation.getReservation(repair(cc, _classes.get(cc), reservation2));
+			repair(cc, _classes.get(cc), reservation2);
 			
 			positions[i++] = reservation2.getDay();
 			positions[i++] = reservation2.getRoom();
