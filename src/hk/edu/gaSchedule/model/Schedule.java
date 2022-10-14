@@ -47,19 +47,7 @@ public class Schedule implements Chromosome<Schedule>
 	private Schedule copy(Schedule c, boolean setupOnly)
 	{		
 		if (!setupOnly)
-		{
-			_configuration = c._configuration;
-			// copy code				
-			_slots = c._slots.clone();
-			_classes = new TreeMap<>(c._classes);
-
-			// copy flags of class requirements
-			_criteria = c._criteria.clone();
-
-			// copy fitness
-			_fitness = c._fitness;
 			return this;
-		}
 		return new Schedule(c._configuration);
 	}
 
