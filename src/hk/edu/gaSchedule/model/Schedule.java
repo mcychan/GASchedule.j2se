@@ -361,7 +361,7 @@ public class Schedule implements Chromosome<Schedule>
 		}
 
 		// calculate fitess value based on score
-		_fitness = (float)score / (_configuration.getNumberOfCourseClasses() * Constant.DAYS_NUM);		
+		_fitness = (float)score / _criteria.length;		
 	}
 
 	// Returns fitness value of chromosome
