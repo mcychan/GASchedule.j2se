@@ -433,19 +433,13 @@ public class Schedule implements Chromosome<Schedule>
 			int room = Math.abs((int) positions[i + 1]);			
 			int time = Math.abs((int) positions[i + 2]);
 			
-			if(day < 0)
-				day = 0;
-			else if(day >= Constant.DAYS_NUM)
+			if(day >= Constant.DAYS_NUM)
 				day = Constant.DAYS_NUM - 1;
 			
-			if(room < 0)
-				room = 0;
-			else if(room >= nr)
+			if(room >= nr)
 				room = nr - 1;
 			
-			if(time < 0)
-				time = 0;
-			else if(time >= (Constant.DAY_HOURS - dur))
+			if(time >= (Constant.DAY_HOURS - dur))
 				time = Constant.DAY_HOURS - 1 - dur;	
 			
 			Reservation reservation2 = Reservation.getReservation(nr, day, time, room);			
