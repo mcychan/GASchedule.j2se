@@ -3,7 +3,7 @@ package hk.edu.gaSchedule.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.LinkedHashMap;
 
 // Schedule chromosome
 public class Schedule implements Chromosome<Schedule>
@@ -26,6 +26,9 @@ public class Schedule implements Chromosome<Schedule>
 	private float _diversity;
 	
 	private int _rank;
+	
+	private double[] _convertedObjectives;
+	private double[] _objectives;
 
 	// Initializes chromosomes with configuration block (setup of chromosome)
 	public Schedule(Configuration configuration)
@@ -35,12 +38,15 @@ public class Schedule implements Chromosome<Schedule>
 
 		// reserve space for time-space slots in chromosomes code
 		_slots = (List<CourseClass>[]) new List[Constant.DAYS_NUM * Constant.DAY_HOURS * _configuration.getNumberOfRooms()];
-		for(int i=0; i< _slots.length; ++i)
+		for(int i = 0; i < _slots.length; ++i)
 			_slots[i] = new ArrayList<CourseClass>();
-		_classes = new TreeMap<>();
+		_classes = new LinkedHashMap<>();
 
 		// reserve space for flags of class requirements
 		_criteria = new boolean[_configuration.getNumberOfCourseClasses() * Constant.CRITERIA_NUM];
+		
+		// increment value when criteria violation occurs
+		_objectives = new double[Constant.CRITERIA_NUM];
 	}
 
 	// Copy constructor
@@ -51,13 +57,17 @@ public class Schedule implements Chromosome<Schedule>
 			_configuration = c._configuration;
 			// copy code				
 			_slots = c._slots.clone();
-			_classes = new TreeMap<>(c._classes);
+			_classes = new LinkedHashMap<>(c._classes);
 
 			// copy flags of class requirements
 			_criteria = c._criteria.clone();
+			_objectives = c._objectives.clone();
 
 			// copy fitness
 			_fitness = c._fitness;
+			
+			if(c._convertedObjectives != null)
+				_convertedObjectives = c._convertedObjectives.clone();
 			return this;
 		}
 		return new Schedule(c._configuration);
@@ -301,6 +311,9 @@ public class Schedule implements Chromosome<Schedule>
 	// Calculates fitness value of chromosome
 	public void calculateFitness()
 	{
+		// increment value when criteria violation occurs
+		_objectives = new double[Constant.CRITERIA_NUM];
+				
 		// chromosome's score
 		int score = 0;
 
@@ -326,7 +339,7 @@ public class Schedule implements Chromosome<Schedule>
 			else
 				score = 0;
 
-			_criteria[ci + 0] = !ro;
+			_criteria[ci + 0] = !ro;			
 			
 			Room r = _configuration.getRoomById(room);
 			_criteria[ci + 1] = Criteria.isSeatEnough(r, cc);
@@ -357,11 +370,15 @@ public class Schedule implements Chromosome<Schedule>
 				score = 0;
 			_criteria[ci + 4] = !total_overlap[1];
 			
+			for(int i = 0; i < _objectives.length; ++i) {
+				if(!_criteria[ci + i])
+					++_objectives[i];
+			}
 			ci += Constant.CRITERIA_NUM;
 		}
 
 		// calculate fitess value based on score
-		_fitness = (float)score / _criteria.length;		
+		_fitness = (float) score / _criteria.length;		
 	}
 
 	// Returns fitness value of chromosome
@@ -372,7 +389,7 @@ public class Schedule implements Chromosome<Schedule>
 	// Returns reference to table of classes
 	public Map<CourseClass, Integer> getClasses() { return _classes; }
 
-	// Returns array of flags of class requiroments satisfaction
+	// Returns array of flags of class requirements satisfaction
 	public boolean[] getCriteria() { return _criteria; }
 
 	// Return reference to array of time-space slots
@@ -442,6 +459,29 @@ public class Schedule implements Chromosome<Schedule>
 		}
 
 		calculateFitness();
+	}
+	
+	@Override
+	public double[] getConvertedObjectives() {
+		if(_convertedObjectives == null)
+			_convertedObjectives = new double[0];
+		return _convertedObjectives;
+	}
+
+	@Override
+	public void resizeConvertedObjectives(int numObj) {
+		if(_convertedObjectives == null || _convertedObjectives.length < numObj)
+			_convertedObjectives = new double[numObj];
+	}	
+	
+	@Override
+	public double[] getObjectives() {
+		return _objectives;
+	}
+
+	@Override
+	public Schedule clone() {
+		return copy(this, false);
 	}
 	
 }

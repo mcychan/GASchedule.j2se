@@ -32,4 +32,12 @@ public interface Chromosome<T extends Chromosome<T> > {
     
     public void updatePositions(float[] positions);
     
+    public double[] getObjectives();
+    
+    public double[] getConvertedObjectives();
+
+	public void resizeConvertedObjectives(int numObj);
+    
+    public T clone();
+    
 }
