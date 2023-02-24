@@ -76,7 +76,7 @@ public class NsgaIII<T extends Chromosome<T> >
 		
 		ReferencePoint(int M) {
 			memberSize = 0;
-			position = DoubleStream.generate(() -> 0).limit(M).toArray();
+			position = new double[M];
 			potentialMembers = new HashMap<>();
 		}
 		
@@ -159,7 +159,7 @@ public class NsgaIII<T extends Chromosome<T> >
 		
 	}
 	
-	private double perpendicularDistance(final double[] direction, final double[] point)
+	private static double perpendicularDistance(final double[] direction, final double[] point)
 	{
 	    double numerator = 0, denominator = 0;
 	    for (int i = 0; i < direction.length; ++i) {
@@ -201,7 +201,7 @@ public class NsgaIII<T extends Chromosome<T> >
 	}
 	
 
-	private double[] guassianElimination(List<Double>[] A, final double[] b)
+	private static double[] guassianElimination(List<Double>[] A, final double[] b)
 	{
 	    final int N = A.length;
 	    for (int i = 0; i < N; ++i)
@@ -279,7 +279,7 @@ public class NsgaIII<T extends Chromosome<T> >
 	}
 	
 
-	private int findNicheReferencePoint(final List<ReferencePoint> rps)
+	private static int findNicheReferencePoint(final List<ReferencePoint> rps)
 	{
 		// find the minimal cluster size
 		int minSize = Integer.MAX_VALUE;
@@ -287,14 +287,14 @@ public class NsgaIII<T extends Chromosome<T> >
 			minSize = Math.min(minSize, rp.memberSize);
 
 		// find the reference points with the minimal cluster size Jmin
-		List<Integer> min_rps = new ArrayList<>();
+		List<Integer> minRps = new ArrayList<>();
 		for (int r = 0; r < rps.size(); ++r) {
 			if (rps.get(r).memberSize == minSize)
-				min_rps.add(r);
+				minRps.add(r);
 		}
 
 		// return a random reference point (j-bar)
-		return min_rps.get(Configuration.rand(min_rps.size()));
+		return minRps.get(Configuration.rand(minRps.size()));
 	}
 	
 
@@ -336,9 +336,7 @@ public class NsgaIII<T extends Chromosome<T> >
 
 		if (duplicate || negativeIntercept) { // follow the method in Yuan et al. (GECCO 2015)
 			double[] maxObjs = findMaxObjectives(pop);
-			intercepts.clear();
-			for (int f = 0; f < numObj; ++f)
-				intercepts.add(maxObjs[f]);
+			intercepts = DoubleStream.of(maxObjs).boxed().collect(Collectors.toList());
 		}
 		return intercepts;
 	}
@@ -413,7 +411,7 @@ public class NsgaIII<T extends Chromosome<T> >
 	}
 	
 
-	private int selectClusterMember(final ReferencePoint rp) {
+	private static int selectClusterMember(final ReferencePoint rp) {
 		if (rp.hasPotentialMember()) {
 			if (rp.memberSize == 0) // currently has no member
 				return rp.findClosestMember();
