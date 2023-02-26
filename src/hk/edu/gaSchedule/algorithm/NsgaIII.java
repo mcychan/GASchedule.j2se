@@ -17,12 +17,12 @@ import java.util.stream.DoubleStream;
 
 import hk.edu.gaSchedule.model.Chromosome;
 import hk.edu.gaSchedule.model.Configuration;
-import hk.edu.gaSchedule.model.Constant;
+import hk.edu.gaSchedule.model.Criteria;
 
 public class NsgaIII<T extends Chromosome<T> >
 {
-	// Population of chromosomes
-	protected List<T> _chromosomes;
+	// Best of chromosomes
+	protected T _best;
 
 	// Prototype of chromosomes in population
 	protected T _prototype;
@@ -64,9 +64,7 @@ public class NsgaIII<T extends Chromosome<T> >
 	// Returns pointer to best chromosomes in population
 	public T getResult()
     {
-		if(_chromosomes == null)
-			return null;
-		return _chromosomes.get(0);
+		return _best;
     }
 	
 	private static class ReferencePoint {
@@ -342,7 +340,7 @@ public class NsgaIII<T extends Chromosome<T> >
 	}
 	
 
-	private void normalizeObjectives(List<T> pop, final List<List<Integer> > fronts, final List<Double> intercepts, final List<Double> ideal_point)
+	private void normalizeObjectives(List<T> pop, final List<List<Integer> > fronts, final List<Double> intercepts)
 	{		
 		for (List<Integer> front : fronts) {
 			for (int i = 0; i < front.size(); ++i) {
@@ -422,16 +420,13 @@ public class NsgaIII<T extends Chromosome<T> >
 	}
 	
 
-	private List<Double> translateObjectives(List<T> pop, final List<List<Integer> > fronts)
+	private void translateObjectives(List<T> pop, final List<List<Integer> > fronts)
 	{
-		List<Double> idealPoint = new ArrayList<>();
 		final int numObj = pop.get(0).getObjectives().length;
 		for (int f = 0; f < numObj; ++f) {
 			double minf = Double.MAX_VALUE;
 			for (int frontIndv : fronts.get(0)) // min values must appear in the first front
 				minf = Math.min(minf, pop.get(frontIndv).getObjectives()[f]);
-
-			idealPoint.add(minf);
 
 			for (List<Integer> front : fronts) {
 				for (int ind : front) {				
@@ -441,9 +436,6 @@ public class NsgaIII<T extends Chromosome<T> >
 				}
 			}
 		}
-
-		return idealPoint;
-
 	}
 
 	protected List<T> selection(List<T> cur, List<ReferencePoint> rps) {
@@ -466,17 +458,19 @@ public class NsgaIII<T extends Chromosome<T> >
 		}
 
 		// ---------- Steps 9-10 in Algorithm 1 ----------
-		if (next.size() == _populationSize)
+		if (next.size() == _populationSize) {
+			next.sort(Comparator.comparing(Chromosome::getFitness, Comparator.reverseOrder()));
 			return next;
+		}
 
 		// ---------- Step 14 / Algorithm 2 ----------
-		List<Double> idealPoint = translateObjectives(cur, fronts);
+		translateObjectives(cur, fronts);
 		
 		List<Integer> extremePoints = findExtremePoints(cur, fronts);
 
 		List<Double> intercepts = constructHyperplane(cur, extremePoints);
 
-		normalizeObjectives(cur, fronts, intercepts, idealPoint);
+		normalizeObjectives(cur, fronts, intercepts);
 
 		// ---------- Step 15 / Algorithm 3, Step 16 ----------
 		associate(rps, cur, fronts);
@@ -535,7 +529,7 @@ public class NsgaIII<T extends Chromosome<T> >
 			return;
 
 		List<Integer> objDivision = new ArrayList<>();
-		if(Constant.CRITERIA_NUM < 8)
+		if(Criteria.weights.length < 8)
 			objDivision.add(6);
 		else {
 			objDivision.add(3);
@@ -569,7 +563,7 @@ public class NsgaIII<T extends Chromosome<T> >
 				else
 					repeat = 0;
 
-				if (repeat > (maxRepeat / 100))		
+				if (repeat > (maxRepeat / 50))		
 					reform();
 			}
 			
@@ -584,8 +578,9 @@ public class NsgaIII<T extends Chromosome<T> >
 			
 			/******************* selection *****************/
 			List<ReferencePoint> rps = new ArrayList<>();			
-			ReferencePoint.generateReferencePoints(rps, Constant.CRITERIA_NUM, objDivision);			
-			pop[next] = _chromosomes = selection(pop[cur], rps);
+			ReferencePoint.generateReferencePoints(rps, Criteria.weights.length, objDivision);			
+			pop[next] = selection(pop[cur], rps);
+			_best = dominate(pop[next].get(0), pop[cur].get(0)) ? pop[next].get(0) : pop[cur].get(0);
 
 			if(currentGeneration > 0)			
 				lastBestFit = best.getFitness();

@@ -62,4 +62,7 @@ public class Criteria {
 
 		return new boolean[] {po, go};
 	}
+	
+	public static final float[] weights = { 0f, .5f, .5f, 0f, 0f };
+	
 }

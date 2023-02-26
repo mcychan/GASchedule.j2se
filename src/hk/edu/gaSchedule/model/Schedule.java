@@ -43,10 +43,10 @@ public class Schedule implements Chromosome<Schedule>
 		_classes = new LinkedHashMap<>();
 
 		// reserve space for flags of class requirements
-		_criteria = new boolean[_configuration.getNumberOfCourseClasses() * Constant.CRITERIA_NUM];
+		_criteria = new boolean[_configuration.getNumberOfCourseClasses() * Criteria.weights.length];
 		
 		// increment value when criteria violation occurs
-		_objectives = new double[Constant.CRITERIA_NUM];
+		_objectives = new double[Criteria.weights.length];
 	}
 
 	// Copy constructor
@@ -312,7 +312,7 @@ public class Schedule implements Chromosome<Schedule>
 	public void calculateFitness()
 	{
 		// increment value when criteria violation occurs
-		_objectives = new double[Constant.CRITERIA_NUM];
+		_objectives = new double[Criteria.weights.length];
 				
 		// chromosome's score
 		int score = 0;
@@ -333,48 +333,32 @@ public class Schedule implements Chromosome<Schedule>
 			int dur = cc.Duration;
 
 			boolean ro = Criteria.isRoomOverlapped(_slots, reservation, dur);
+			
 			// on room overlapping
-			if (!ro)
-				score++;
-			else
-				score = 0;
-
 			_criteria[ci + 0] = !ro;			
 			
 			Room r = _configuration.getRoomById(room);
 			_criteria[ci + 1] = Criteria.isSeatEnough(r, cc);
-			if (_criteria[ci + 1])
-				score++;
-			else
-				score /= 2;
 
 			_criteria[ci + 2] = Criteria.isComputerEnough(r, cc);
-			if (_criteria[ci + 2])
-				score++;
-			else
-				score /= 2;
 
 			boolean[] total_overlap = Criteria.isOverlappedProfStudentGrp(_slots, cc, numberOfRooms, day * daySize + time);
 
 			// professors have no overlapping classes?
-			if (!total_overlap[0])
-				score++;
-			else
-				score = 0;
 			_criteria[ci + 3] = !total_overlap[0];
 
 			// student groups has no overlapping classes?
-			if (!total_overlap[1])
-				score++;
-			else
-				score = 0;
 			_criteria[ci + 4] = !total_overlap[1];
 			
 			for(int i = 0; i < _objectives.length; ++i) {
-				if(!_criteria[ci + i])
-					++_objectives[i];
+				if(_criteria[ci + i])
+					++score;
+				else {
+					score += Criteria.weights[i];
+					_objectives[i] += Criteria.weights[i] > 0 ? 1 : 2;
+				}
 			}
-			ci += Constant.CRITERIA_NUM;
+			ci += Criteria.weights.length;
 		}
 
 		// calculate fitess value based on score
