@@ -315,7 +315,7 @@ public class Schedule implements Chromosome<Schedule>
 		_objectives = new double[Criteria.weights.length];
 				
 		// chromosome's score
-		int score = 0;
+		float score = 0;
 
 		int numberOfRooms = _configuration.getNumberOfRooms();
 		int daySize = Constant.DAY_HOURS * numberOfRooms;
@@ -362,7 +362,7 @@ public class Schedule implements Chromosome<Schedule>
 		}
 
 		// calculate fitess value based on score
-		_fitness = (float) score / _criteria.length;		
+		_fitness = score / _criteria.length;		
 	}
 
 	// Returns fitness value of chromosome
