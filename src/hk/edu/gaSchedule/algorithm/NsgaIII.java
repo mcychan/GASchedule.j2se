@@ -340,15 +340,14 @@ public class NsgaIII<T extends Chromosome<T> >
 	}
 	
 
-	private void normalizeObjectives(List<T> pop, final List<List<Integer> > fronts, final List<Double> intercepts)
+	private void normalizeObjectives(List<T> pop, final List<List<Integer> > fronts, final List<Double> intercepts, final List<Double> idealPoint)
 	{		
 		for (List<Integer> front : fronts) {
-			for (int i = 0; i < front.size(); ++i) {
-				int ind = front.get(i);
+			for (int ind : front) {
 				double[] convObjs = pop.get(ind).getConvertedObjectives();
 				for (int f = 0; f < convObjs.length; ++f) {
-					if (Math.abs(intercepts.get(f)) > 10e-10) // avoid the divide-by-zero error
-						convObjs[f] /= intercepts.get(f);
+					if (Math.abs(intercepts.get(f) - idealPoint.get(f)) > 10e-10) // avoid the divide-by-zero error
+						convObjs[f] /= intercepts.get(f) - idealPoint.get(f);
 					else
 						convObjs[f] /= 10e-10;
 				}
@@ -382,17 +381,17 @@ public class NsgaIII<T extends Chromosome<T> >
 				if (indvRanks[i] > 0)
 					continue; // already assigned a rank
 
-				boolean be_dominated = false;
+				boolean beDominated = false;
 				for (int j = 0; j < curFront.size(); ++j) {
 					if (dominate(pop.get( curFront.get(j) ), pop.get(i)) ) { // i is dominated
-						be_dominated = true;
+						beDominated = true;
 						break;
 					}
 					else if ( dominate(pop.get(i), pop.get( curFront.get(j) )) ) // i dominates a member in the current front
 						curFront.remove(j--);
 				}
 				
-				if (!be_dominated)
+				if (!beDominated)
 					curFront.add(i);
 			}
 
@@ -420,22 +419,27 @@ public class NsgaIII<T extends Chromosome<T> >
 	}
 	
 
-	private void translateObjectives(List<T> pop, final List<List<Integer> > fronts)
+	private List<Double> translateObjectives(List<T> pop, final List<List<Integer> > fronts)
 	{
+		List<Double> idealPoint = new ArrayList<>();
 		final int numObj = pop.get(0).getObjectives().length;
 		for (int f = 0; f < numObj; ++f) {
 			double minf = Double.MAX_VALUE;
 			for (int frontIndv : fronts.get(0)) // min values must appear in the first front
 				minf = Math.min(minf, pop.get(frontIndv).getObjectives()[f]);
+			
+			idealPoint.add(minf);
 
 			for (List<Integer> front : fronts) {
-				for (int ind : front) {				
-					pop.get(ind).resizeConvertedObjectives(numObj);
-					double[] convertedObjectives = pop.get(ind).getConvertedObjectives();
-					convertedObjectives[f] = pop.get(ind).getObjectives()[f] - minf;
+				for (int ind : front) {
+					T chromosome = pop.get(ind);
+					chromosome.resizeConvertedObjectives(numObj);
+					chromosome.getConvertedObjectives()[f] = chromosome.getObjectives()[f] - minf;
 				}
 			}
 		}
+		
+		return idealPoint;
 	}
 
 	protected List<T> selection(List<T> cur, List<ReferencePoint> rps) {
@@ -464,13 +468,13 @@ public class NsgaIII<T extends Chromosome<T> >
 		}
 
 		// ---------- Step 14 / Algorithm 2 ----------
-		translateObjectives(cur, fronts);
+		List<Double> idealPoint = translateObjectives(cur, fronts);
 		
 		List<Integer> extremePoints = findExtremePoints(cur, fronts);
 
 		List<Double> intercepts = constructHyperplane(cur, extremePoints);
 
-		normalizeObjectives(cur, fronts, intercepts);
+		normalizeObjectives(cur, fronts, intercepts, idealPoint);
 
 		// ---------- Step 15 / Algorithm 3, Step 16 ----------
 		associate(rps, cur, fronts);
