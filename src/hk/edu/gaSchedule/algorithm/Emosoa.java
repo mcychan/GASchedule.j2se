@@ -117,7 +117,7 @@ public class Emosoa<T extends Chromosome<T> > extends NsgaII<T>
 		List<T> population = new ArrayList<>();
 		initialize(population);		
 
-		int repeat = 0;
+		int bestNotEnhance = 0;
 		double lastBestFit = 0.0;
 
 		while(_currentGeneration < _max_iterations)
@@ -133,12 +133,14 @@ public class Emosoa<T extends Chromosome<T> > extends NsgaII<T>
 	
 				double difference = Math.abs(best.getFitness() - lastBestFit);
 				if (difference <= 0.0000001)
-					++repeat;
-				else
-					repeat = 0;
+					++bestNotEnhance;
+				else {
+					lastBestFit = best.getFitness();
+					bestNotEnhance = 0;
+				}
 
-				_repeatRatio = repeat * 100.0f / maxRepeat;
-				if (repeat > (maxRepeat / 100))		
+				_repeatRatio = bestNotEnhance * 100.0f / maxRepeat;
+				if (bestNotEnhance > (maxRepeat / 100))		
 					reform();
 			}				
 			
@@ -167,7 +169,6 @@ public class Emosoa<T extends Chromosome<T> > extends NsgaII<T>
 				totalChromosome.addAll(_chromosomes);
 				List<Set<Integer> > newBestFront = nonDominatedSorting(totalChromosome);
 				_chromosomes = selection(newBestFront, totalChromosome);
-				lastBestFit = best.getFitness();
 			}			
 			++_currentGeneration;
 		}

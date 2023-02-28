@@ -213,7 +213,7 @@ public class NsgaII<T extends Chromosome<T> >
 
 		// Current generation
 		int currentGeneration = 0;
-		int repeat = 0;
+		int bestNotEnhance = 0;
 		double lastBestFit = 0.0;
 
 		for (; ;)
@@ -229,12 +229,14 @@ public class NsgaII<T extends Chromosome<T> >
 	
 				double difference = Math.abs(best.getFitness() - lastBestFit);
 				if (difference <= 0.0000001)
-					++repeat;
-				else
-					repeat = 0;
+					++bestNotEnhance;
+				else {
+					lastBestFit = best.getFitness();
+					bestNotEnhance = 0;
+				}
 
-				_repeatRatio = repeat * 100.0f / maxRepeat;
-				if (repeat > (maxRepeat / 100))		
+				_repeatRatio = bestNotEnhance * 100.0f / maxRepeat;
+				if (bestNotEnhance > (maxRepeat / 100))		
 					reform();
 			}				
 			
@@ -263,7 +265,6 @@ public class NsgaII<T extends Chromosome<T> >
 				totalChromosome.addAll(_chromosomes);
 				List<Set<Integer> > newBestFront = nonDominatedSorting(totalChromosome);
 				_chromosomes = selection(newBestFront, totalChromosome);
-				lastBestFit = best.getFitness();
 			}			
 			++currentGeneration;
 		}

@@ -555,7 +555,7 @@ public class NsgaIII<T extends Chromosome<T> >
 
 		// Current generation
 		int currentGeneration = 0;
-		int repeat = 0;
+		int bestNotEnhance = 0;
 		double lastBestFit = 0.0;
 
 		int cur = 0, next = 1;
@@ -572,11 +572,13 @@ public class NsgaIII<T extends Chromosome<T> >
 	
 				double difference = Math.abs(best.getFitness() - lastBestFit);
 				if (difference <= 0.0000001)
-					++repeat;
-				else
-					repeat = 0;
+					++bestNotEnhance;
+				else {
+					lastBestFit = best.getFitness();
+					bestNotEnhance = 0;
+				}
 
-				if (repeat > (maxRepeat / 50))		
+				if (bestNotEnhance > (maxRepeat / 50))		
 					reform();
 			}
 			
@@ -592,9 +594,6 @@ public class NsgaIII<T extends Chromosome<T> >
 			/******************* selection *****************/	
 			pop[next] = selection(pop[cur]);
 			_best = dominate(pop[next].get(0), pop[cur].get(0)) ? pop[next].get(0) : pop[cur].get(0);
-
-			if(currentGeneration > 0)			
-				lastBestFit = best.getFitness();
 			
 			int temp = cur;
 			cur = next;
