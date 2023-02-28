@@ -8,7 +8,6 @@ package hk.edu.gaSchedule.algorithm;
  */
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import hk.edu.gaSchedule.model.Chromosome;
@@ -24,13 +23,6 @@ public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 	public APNsgaIII(T prototype, int numberOfCrossoverPoints, int mutationSize, float crossoverProbability, float mutationProbability)
 	{
 		super(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability);		
-	}
-	
-	@Override
-	protected List<T> replacement(List<T> population)
-	{
-		List<T> offspring = super.replacement(population);
-		return offspring;
 	}
 	
 	private double ex(T chromosome)
