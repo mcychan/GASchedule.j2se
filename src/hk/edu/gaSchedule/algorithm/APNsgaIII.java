@@ -124,10 +124,11 @@ public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 						_best = child;
 				}
 				else {
-					if(bestNotEnhance >= 15 && N++ < nMax) {
-						pop[next].add(child);		
+					if(bestNotEnhance >= 15 && N++ < nMax) {	
 						if(dominate(_worst, child))
-							_worst = child;
+							pop[next].add(child);
+						else
+							pop[next].add(pop[next].size() - 1, child);
 					}
 				}				
 			}
