@@ -86,7 +86,7 @@ public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 				}
 				
 				String status = String.format("\rFitness: %.9f\t Generation: %d", best.getFitness(), _currentGeneration);	
-				if(bestNotEnhance > 15)
+				if(bestNotEnhance >= 15)
 					status = String.format("%s\t Best not enhance: %d", status, bestNotEnhance);
 				System.out.print(status);
 				
@@ -111,23 +111,24 @@ public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 			_best = dominate(pop[next].get(0), pop[cur].get(0)) ? pop[next].get(0) : pop[cur].get(0);
 			
 			int N = _populationSize;
-			for(int i = 0; i < _populationSize; ++i) {
-				T child = pop[next].get(i);				
-				T parent = pop[cur].get(i);
-				
-				if(dominate(child, parent))
-					parent = child;
-				else {
-					if(bestNotEnhance >= 15 && N < nMax)
-						pop[next].add(child);						
-				}
+			for(int i = 0; i < _populationSize; ++i) {			
+				T parent = pop[next].get(i);
+				T child = parent.clone();
+				child.mutation(_mutationSize, _mutationProbability);
 				
 				_worst = pop[next].get(_populationSize - 1);
-				if(dominate(_worst, child))
-					_worst = child;
-				
-				if(dominate(parent, _best))
-					_best = parent;
+				if(dominate(child, parent)) {
+					pop[next].set(i, child);
+					if(dominate(child, _best))
+						_best = child;
+				}
+				else {
+					if(bestNotEnhance >= 15 && N < nMax) {
+						pop[next].add(child);		
+						if(dominate(_worst, child))
+							_worst = child;
+					}
+				}				
 			}
 			popDec(pop[next]);
 			
