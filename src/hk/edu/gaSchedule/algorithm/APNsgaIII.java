@@ -110,20 +110,21 @@ public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 			pop[next] = super.selection(pop[cur]);			
 			_best = dominate(pop[next].get(0), pop[cur].get(0)) ? pop[next].get(0) : pop[cur].get(0);
 			
-			int N = _populationSize;
-			for(int i = 0; i < _populationSize; ++i) {			
+			int N = pop[next].size();
+			int nTmp = N;
+			for(int i = 0; i < nTmp; ++i) {			
 				T parent = pop[next].get(i);
 				T child = parent.clone();
 				child.mutation(_mutationSize, _mutationProbability);
 				
-				_worst = pop[next].get(_populationSize - 1);
+				_worst = pop[next].get(pop[next].size() - 1);
 				if(dominate(child, parent)) {
 					pop[next].set(i, child);
 					if(dominate(child, _best))
 						_best = child;
 				}
 				else {
-					if(bestNotEnhance >= 15 && N < nMax) {
+					if(bestNotEnhance >= 15 && N++ < nMax) {
 						pop[next].add(child);		
 						if(dominate(_worst, child))
 							_worst = child;
