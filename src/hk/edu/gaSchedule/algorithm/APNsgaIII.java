@@ -76,16 +76,7 @@ public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 		while(_currentGeneration < _max_iterations)
 		{
 			T best = getResult();
-			if(_currentGeneration > 0) {
-				String status = String.format("\rFitness: %.9f\t Generation: %d", best.getFitness(), _currentGeneration);
-				if(bestNotEnhance > 15)
-					status = String.format("%s\t Best not enhance: %d", status, bestNotEnhance);
-				System.out.print(status);
-				
-				// algorithm has reached criteria?
-				if (best.getFitness() > minFitness)
-					break;
-	
+			if(_currentGeneration > 0) {	
 				double difference = Math.abs(best.getFitness() - lastBestFit);
 				if (difference <= 1e-6)
 					++bestNotEnhance;
@@ -93,6 +84,14 @@ public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 					lastBestFit = best.getFitness();
 					bestNotEnhance = 0;
 				}
+				
+				String status = String.format("\rFitness: %.9f\t Generation: %d", best.getFitness(), _currentGeneration);	
+				if(bestNotEnhance > 15)
+					status = String.format("%s\t Best not enhance: %d", status, bestNotEnhance);
+				System.out.print(status);
+				
+				if (best.getFitness() > minFitness) 
+					break;
 
 				if (bestNotEnhance > (maxRepeat / 50))		
 					reform();
