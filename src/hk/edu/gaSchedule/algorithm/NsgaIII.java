@@ -41,6 +41,8 @@ public class NsgaIII<T extends Chromosome<T> >
 
 	// Probability that mutation will occur
 	protected float _mutationProbability;
+	
+	protected List<Integer> _objDivision;
 
 	// Initializes NsgaIII
 	private NsgaIII(T prototype, int numberOfChromosomes)
@@ -59,6 +61,14 @@ public class NsgaIII<T extends Chromosome<T> >
 		_numberOfCrossoverPoints = numberOfCrossoverPoints;
 		_crossoverProbability = crossoverProbability;
 		_mutationProbability = mutationProbability;
+		
+		_objDivision = new ArrayList<>();
+		if(Criteria.weights.length < 8)
+			_objDivision.add(6);
+		else {
+			_objDivision.add(3);
+			_objDivision.add(2);
+		}
 	}	
 
 	// Returns pointer to best chromosomes in population
@@ -179,7 +189,7 @@ public class NsgaIII<T extends Chromosome<T> >
 	private void associate(List<ReferencePoint> rps, final List<T> pop, final List<List<Integer> > fronts) {
 		for (int t = 0; t < fronts.size(); ++t) {
 			for (Integer memberInd : fronts.get(t)) {
-				int minRp = rps.size();
+				int minRp = rps.size() - 1;
 				double minDist = Double.MAX_VALUE;
 				for (int r = 0; r < rps.size(); ++r) {
 					double d = perpendicularDistance(rps.get(r).position, pop.get(memberInd).getConvertedObjectives());
@@ -230,7 +240,7 @@ public class NsgaIII<T extends Chromosome<T> >
 	{
 		double max_ratio = -Double.MAX_VALUE;
 		for (int f = 0; f < objs.length; ++f) {
-			double w = Math.max(weight[f], 0.00001);
+			double w = Math.max(weight[f], 1e-6);
 			max_ratio = Math.max(max_ratio, objs[f] / w);
 		}
 		return max_ratio;
@@ -242,7 +252,7 @@ public class NsgaIII<T extends Chromosome<T> >
 		
 		List<Integer> exp = new ArrayList<>();
 		for (int f = 0; f < numObj; ++f) {
-			double[] w = DoubleStream.generate(() -> 0.000001).limit(numObj).toArray();
+			double[] w = DoubleStream.generate(() -> 1e-6).limit(numObj).toArray();
 			w[f] = 1.0;
 
 			double minASF = Double.MAX_VALUE;
@@ -442,7 +452,7 @@ public class NsgaIII<T extends Chromosome<T> >
 		return idealPoint;
 	}
 
-	protected List<T> selection(List<T> cur, List<ReferencePoint> rps) {
+	private List<T> selection(List<T> cur, List<ReferencePoint> rps) {
 		List<T> next = new ArrayList<>();
 		
 		// ---------- Step 4 in Algorithm 1: non-dominated sorting ----------
@@ -526,19 +536,18 @@ public class NsgaIII<T extends Chromosome<T> >
 			_mutationProbability += 1.0f;
 	}
 	
+	protected List<T> selection(List<T> population)
+	{
+		List<ReferencePoint> rps = new ArrayList<>();			
+		ReferencePoint.generateReferencePoints(rps, Criteria.weights.length, _objDivision);			
+		return selection(population, rps);
+	}
+	
 	// Starts and executes algorithm
 	public void run(int maxRepeat, double minFitness)
     {
 		if (_prototype == null)
-			return;
-
-		List<Integer> objDivision = new ArrayList<>();
-		if(Criteria.weights.length < 8)
-			objDivision.add(6);
-		else {
-			objDivision.add(3);
-			objDivision.add(2);
-		}
+			return;		
 		
 		List<T>[] pop = new ArrayList[2];
 		pop[0] = new ArrayList<>();
@@ -580,10 +589,8 @@ public class NsgaIII<T extends Chromosome<T> >
 			
 			pop[cur].addAll(offspring);
 			
-			/******************* selection *****************/
-			List<ReferencePoint> rps = new ArrayList<>();			
-			ReferencePoint.generateReferencePoints(rps, Criteria.weights.length, objDivision);			
-			pop[next] = selection(pop[cur], rps);
+			/******************* selection *****************/	
+			pop[next] = selection(pop[cur]);
 			_best = dominate(pop[next].get(0), pop[cur].get(0)) ? pop[next].get(0) : pop[cur].get(0);
 
 			if(currentGeneration > 0)			
