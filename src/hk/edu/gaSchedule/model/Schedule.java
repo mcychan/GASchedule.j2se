@@ -447,15 +447,12 @@ public class Schedule implements Chromosome<Schedule>
 	
 	@Override
 	public double[] getConvertedObjectives() {
-		if(_convertedObjectives == null)
-			_convertedObjectives = new double[0];
 		return _convertedObjectives;
 	}
 
 	@Override
 	public void resizeConvertedObjectives(int numObj) {
-		if(_convertedObjectives == null || _convertedObjectives.length < numObj)
-			_convertedObjectives = new double[numObj];
+		_convertedObjectives = new double[numObj];
 	}	
 	
 	@Override

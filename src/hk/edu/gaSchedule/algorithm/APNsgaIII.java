@@ -52,9 +52,36 @@ public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 					break;
 			}
 		}
-		
-		for(int i = population.size() - 1; i >= _populationSize; --i)
-			population.remove(i);
+	}
+	
+	private void dualCtrlStrategy(List<T> population, int bestNotEnhance, int nMax)
+	{
+		int N = population.size();
+		int nTmp = N;
+		for(int i = 0; i < nTmp; ++i) {			
+			T chromosome = population.get(i);
+			T tumor = chromosome.clone();
+			tumor.mutation(_mutationSize, _mutationProbability);
+			
+			_worst = population.get(population.size() - 1);
+			if(dominate(tumor, chromosome)) {
+				population.set(i, tumor);
+				if(dominate(tumor, _best))
+					_best = tumor;
+			}
+			else {
+				if(bestNotEnhance >= 15 && N < nMax) {
+					++N;
+					if(dominate(_worst, tumor)) {
+						population.add(tumor);
+						_worst = tumor;
+					}
+					else
+						population.add(population.size() - 1, tumor);
+				}
+			}				
+		}
+		popDec(population);
 	}
 	
 	// Starts and executes algorithm
@@ -85,9 +112,9 @@ public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 					bestNotEnhance = 0;
 				}
 				
-				String status = String.format("\rFitness: %.9f\t Generation: %d", best.getFitness(), _currentGeneration);	
+				String status = String.format("\rFitness: %f\t Generation: %d    ", best.getFitness(), _currentGeneration);	
 				if(bestNotEnhance >= 15)
-					status = String.format("%s\t Best not enhance: %d", status, bestNotEnhance);
+					status = String.format("\rFitness: %f\t Generation: %d ...", best.getFitness(), _currentGeneration);
 				System.out.print(status);
 				
 				if (best.getFitness() > minFitness) 
@@ -107,32 +134,10 @@ public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 			pop[cur].addAll(offspring);
 			
 			/******************* selection *****************/		
-			pop[next] = super.selection(pop[cur]);			
+			pop[next] = selection(pop[cur]);			
 			_best = dominate(pop[next].get(0), pop[cur].get(0)) ? pop[next].get(0) : pop[cur].get(0);
 			
-			int N = pop[next].size();
-			int nTmp = N;
-			for(int i = 0; i < nTmp; ++i) {			
-				T parent = pop[next].get(i);
-				T child = parent.clone();
-				child.mutation(_mutationSize, _mutationProbability);
-				
-				_worst = pop[next].get(pop[next].size() - 1);
-				if(dominate(child, parent)) {
-					pop[next].set(i, child);
-					if(dominate(child, _best))
-						_best = child;
-				}
-				else {
-					if(bestNotEnhance >= 15 && N++ < nMax) {	
-						if(dominate(_worst, child))
-							pop[next].add(child);
-						else
-							pop[next].add(pop[next].size() - 1, child);
-					}
-				}				
-			}
-			popDec(pop[next]);
+			dualCtrlStrategy(pop[next], bestNotEnhance, nMax);
 			
 			int temp = cur;
 			cur = next;
