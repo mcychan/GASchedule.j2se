@@ -37,10 +37,10 @@ public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 	
 	private void popDec(List<T> population)
 	{
-		if(population.size() <= _populationSize)
-			return;
+		int N = population.size();
+		if(N <= _populationSize)
+			return;		
 		
-		int N = population.size();		
 		int rank = (int) (.3 * _populationSize);
 		
 		for(int i = 0; i < N; ++i) {
