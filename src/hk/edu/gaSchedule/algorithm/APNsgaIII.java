@@ -125,7 +125,7 @@ public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 			}				
 			
 			/******************* crossover *****************/
-			List<T> offspring = replacement(pop[cur]);
+			List<T> offspring = crossing(pop[cur]);
 			
 			/******************* mutation *****************/
 			for(T child : offspring)
@@ -133,8 +133,8 @@ public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 
 			pop[cur].addAll(offspring);
 			
-			/******************* selection *****************/		
-			pop[next] = selection(pop[cur]);			
+			/******************* replacement *****************/		
+			pop[next] = replacement(pop[cur]);			
 			_best = dominate(pop[next].get(0), pop[cur].get(0)) ? pop[next].get(0) : pop[cur].get(0);
 			
 			dualCtrlStrategy(pop[next], bestNotEnhance, nMax);
