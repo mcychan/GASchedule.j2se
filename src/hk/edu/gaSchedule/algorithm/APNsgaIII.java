@@ -64,15 +64,15 @@ public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 			tumor.mutation(_mutationSize, _mutationProbability);
 			
 			_worst = population.get(population.size() - 1);
-			if(dominate(tumor, chromosome)) {
+			if(tumor.dominates(chromosome)) {
 				population.set(i, tumor);
-				if(dominate(tumor, _best))
+				if(tumor.dominates(_best))
 					_best = tumor;
 			}
 			else {
 				if(bestNotEnhance >= 15 && N < nMax) {
 					++N;
-					if(dominate(_worst, tumor)) {
+					if(_worst.dominates(tumor)) {
 						population.add(tumor);
 						_worst = tumor;
 					}
@@ -135,7 +135,7 @@ public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 			
 			/******************* replacement *****************/		
 			pop[next] = replacement(pop[cur]);			
-			_best = dominate(pop[next].get(0), pop[cur].get(0)) ? pop[next].get(0) : pop[cur].get(0);
+			_best = pop[next].get(0).dominates( pop[cur].get(0)) ? pop[next].get(0) : pop[cur].get(0);
 			
 			dualCtrlStrategy(pop[next], bestNotEnhance, nMax);
 			

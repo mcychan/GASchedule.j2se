@@ -75,7 +75,7 @@ public class NsgaII<T extends Chromosome<T> >
     }
 	
 	/************** non-dominated sorting function ***************************/
-	protected List<Set<Integer> > nonDominatedSorting(List<T> totalChromosome)
+	protected List<Set<Integer> > nonDominatedSorting(List<T> population)
 	{
 		Set<Integer>[] s = (Set<Integer>[]) Array.newInstance(Set.class, _populationSize * 2);
 		int[] n = new int[s.length];
@@ -85,10 +85,11 @@ public class NsgaII<T extends Chromosome<T> >
 		for(int p = 0; p < s.length; ++p) {
 			s[p] = new HashSet<Integer>();
 			for(int q = 0; q < s.length; ++q) {
-				int diff = Float.compare(totalChromosome.get(p).getFitness(), totalChromosome.get(q).getFitness());
-				if (diff > 0)
+				if(p == q)
+					continue;
+				if (population.get(p).dominates( population.get(q)))
 					s[p].add(q);
-				else if(diff < 0)
+				else if(population.get(q).dominates( population.get(p)))
 					++n[p];
 			}
 			
@@ -142,7 +143,7 @@ public class NsgaII<T extends Chromosome<T> >
 		return distance;
 	}
 	
-	protected List<T> selection(List<Set<Integer> > front, List<T> totalChromosome)
+	protected List<T> replacement(List<Set<Integer> > front, List<T> totalChromosome)
 	{
 		int N = 0;
 		List<Integer> newPop = new ArrayList<>();
@@ -168,7 +169,7 @@ public class NsgaII<T extends Chromosome<T> >
 		return newPop.stream().map(n -> totalChromosome.get(n)).collect(Collectors.toList());
 	}	
 	
-	protected List<T> replacement(List<T> population)
+	protected List<T> crossing(List<T> population)
     {
 		List<T> offspring = new ArrayList<>();
 		List<Integer> S = IntStream.range(0, _populationSize).boxed().collect(Collectors.toList());
@@ -241,7 +242,7 @@ public class NsgaII<T extends Chromosome<T> >
 			}				
 			
 			/******************* crossover *****************/
-			List<T> offspring = replacement(population);			
+			List<T> offspring = crossing(population);			
 			
 			/******************* mutation *****************/
 			for(T child : offspring)
@@ -254,7 +255,7 @@ public class NsgaII<T extends Chromosome<T> >
 			List<Set<Integer> > front = nonDominatedSorting(totalChromosome);
 			
 			/******************* selection *****************/
-			population = selection(front, totalChromosome);
+			population = replacement(front, totalChromosome);
 			_populationSize = population.size();
 			
 			/******************* comparison *****************/
@@ -264,7 +265,7 @@ public class NsgaII<T extends Chromosome<T> >
 				totalChromosome = new ArrayList<>(population);
 				totalChromosome.addAll(_chromosomes);
 				List<Set<Integer> > newBestFront = nonDominatedSorting(totalChromosome);
-				_chromosomes = selection(newBestFront, totalChromosome);
+				_chromosomes = replacement(newBestFront, totalChromosome);
 			}			
 			++currentGeneration;
 		}

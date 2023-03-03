@@ -366,18 +366,6 @@ public class NsgaIII<T extends Chromosome<T> >
 
 	}
 	
-	protected boolean dominate(T left, T right) {
-		boolean better = false;
-		for (int f = 0; f < left.getObjectives().length; ++f) {
-			if (left.getObjectives()[f] > right.getObjectives()[f])
-				return false;
-			
-			if (left.getObjectives()[f] < right.getObjectives()[f])
-				better = true;
-		}
-		return better;
-	}
-	
 	protected List<List<Integer> > nondominatedSort(List<T> pop) {
 		List<List<Integer> > fronts = new ArrayList<>();
 		int numAssignedIndividuals = 0;
@@ -393,11 +381,11 @@ public class NsgaIII<T extends Chromosome<T> >
 
 				boolean beDominated = false;
 				for (int j = 0; j < curFront.size(); ++j) {
-					if (dominate(pop.get( curFront.get(j) ), pop.get(i)) ) { // i is dominated
+					if (pop.get( curFront.get(j) ).dominates(pop.get(i)) ) { // i is dominated
 						beDominated = true;
 						break;
 					}
-					else if ( dominate(pop.get(i), pop.get( curFront.get(j) )) ) // i dominates a member in the current front
+					else if (pop.get(i).dominates( pop.get( curFront.get(j) )) ) // i dominates a member in the current front
 						curFront.remove(j--);
 				}
 				
@@ -593,7 +581,7 @@ public class NsgaIII<T extends Chromosome<T> >
 			
 			/******************* replacement *****************/	
 			pop[next] = replacement(pop[cur]);
-			_best = dominate(pop[next].get(0), pop[cur].get(0)) ? pop[next].get(0) : pop[cur].get(0);
+			_best = pop[next].get(0).dominates( pop[cur].get(0)) ? pop[next].get(0) : pop[cur].get(0);
 			
 			int temp = cur;
 			cur = next;

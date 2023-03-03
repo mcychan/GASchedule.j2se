@@ -76,7 +76,7 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 	}
 	
 	@Override
-	protected List<T> replacement(List<T> population)
+	protected List<T> crossing(List<T> population)
 	{
 		int populationSize = population.size();
 		float decline = 1 - _climax;
@@ -112,7 +112,7 @@ public class Hgasso<T extends Chromosome<T> > extends NsgaII<T>
 		}
 		
 		updateVelocities(population);
-		return super.replacement(population);
+		return super.crossing(population);
 	}
 	
 	@Override

@@ -40,4 +40,6 @@ public interface Chromosome<T extends Chromosome<T> > {
     
     public T clone();
     
+    public boolean dominates(T other);
+    
 }

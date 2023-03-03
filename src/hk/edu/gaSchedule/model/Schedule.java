@@ -465,4 +465,17 @@ public class Schedule implements Chromosome<Schedule>
 		return copy(this, false);
 	}
 	
+	@Override
+	public boolean dominates(Schedule other) {
+		boolean better = false;
+		for (int f = 0; f < getObjectives().length; ++f) {
+			if (getObjectives()[f] > other.getObjectives()[f])
+				return false;
+			
+			if (getObjectives()[f] < other.getObjectives()[f])
+				better = true;
+		}
+		return better;
+	}
+	
 }

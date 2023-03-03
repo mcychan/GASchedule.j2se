@@ -30,7 +30,7 @@ public class Ngra<T extends Chromosome<T> > extends NsgaII<T>
 
 	/************** ranked based roulette wheel function ***************************/
 	@Override
-	protected List<T> replacement(List<T> population)
+	protected List<T> crossing(List<T> population)
 	{
 		Map<Integer, Float> obj = IntStream.range(0, population.size()).boxed()
 			.collect(Collectors.toMap(Function.identity(), m -> population.get(m).getFitness()));
@@ -76,7 +76,7 @@ public class Ngra<T extends Chromosome<T> > extends NsgaII<T>
 	protected void initialize(List<T> population)
 	{
 		super.initialize(population);
-		List<T> offspring = replacement(population);
+		List<T> offspring = crossing(population);
 		population.clear();
 		population.addAll(offspring);
 	}

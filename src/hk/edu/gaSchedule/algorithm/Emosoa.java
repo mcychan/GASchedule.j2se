@@ -50,7 +50,7 @@ public class Emosoa<T extends Chromosome<T> > extends NsgaII<T>
 	}
 	
 	@Override
-	protected List<T> replacement(List<T> population)
+	protected List<T> crossing(List<T> population)
 	{
 		int populationSize = population.size();
 		float climax = .9f;
@@ -80,7 +80,7 @@ public class Emosoa<T extends Chromosome<T> > extends NsgaII<T>
 		}
 		
 		exploitation(population);
-		return super.replacement(population);
+		return super.crossing(population);
 	}
 	
 	@Override
@@ -145,7 +145,7 @@ public class Emosoa<T extends Chromosome<T> > extends NsgaII<T>
 			}				
 			
 			/******************* crossover *****************/
-			List<T> offspring = replacement(population);			
+			List<T> offspring = crossing(population);			
 			
 			/******************* mutation *****************/
 			for(T child : offspring)
@@ -157,8 +157,8 @@ public class Emosoa<T extends Chromosome<T> > extends NsgaII<T>
 			/******************* non-dominated sorting *****************/
 			List<Set<Integer> > front = nonDominatedSorting(totalChromosome);
 			
-			/******************* selection *****************/
-			population = selection(front, totalChromosome);
+			/******************* replacement *****************/
+			population = replacement(front, totalChromosome);
 			_populationSize = population.size();
 			
 			/******************* comparison *****************/
@@ -168,7 +168,7 @@ public class Emosoa<T extends Chromosome<T> > extends NsgaII<T>
 				totalChromosome = new ArrayList<>(population);
 				totalChromosome.addAll(_chromosomes);
 				List<Set<Integer> > newBestFront = nonDominatedSorting(totalChromosome);
-				_chromosomes = selection(newBestFront, totalChromosome);
+				_chromosomes = replacement(newBestFront, totalChromosome);
 			}			
 			++_currentGeneration;
 		}
