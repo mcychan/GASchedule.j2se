@@ -7,7 +7,6 @@ package hk.edu.gaSchedule.algorithm;
  */
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -460,10 +459,8 @@ public class NsgaIII<T extends Chromosome<T> >
 		}
 
 		// ---------- Steps 9-10 in Algorithm 1 ----------
-		if (next.size() == _populationSize) {
-			next.sort(Comparator.comparing(Chromosome::getFitness, Comparator.reverseOrder()));
+		if (next.size() == _populationSize)
 			return next;
-		}
 
 		// ---------- Step 14 / Algorithm 2 ----------
 		List<Double> idealPoint = translateObjectives(cur, fronts);
@@ -489,9 +486,8 @@ public class NsgaIII<T extends Chromosome<T> >
 				rps.get(minRp).removePotentialMember(chosen);
 				next.add(cur.get(chosen));
 			}
-		}		
+		}
 
-		next.sort(Comparator.comparing(Chromosome::getFitness, Comparator.reverseOrder()));
 		return next;
 	}
 
