@@ -7,10 +7,10 @@ package hk.edu.gaSchedule.algorithm;
  */
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
@@ -114,16 +114,7 @@ public class NsgaIII<T extends Chromosome<T> >
 		
 		int findClosestMember()
 		{
-			double minDist = Double.MAX_VALUE;
-			int minIndv = -1;
-			for (Entry<Integer, Double> entry : potentialMembers.entrySet()) {
-				if (entry.getValue() < minDist) {
-					minDist = entry.getValue();
-					minIndv = entry.getKey();
-				}
-			}
-
-			return minIndv;
+			return Collections.min(potentialMembers.entrySet(), Map.Entry.comparingByValue()).getKey();
 		}
 		
 		boolean hasPotentialMember()
