@@ -8,6 +8,7 @@ package hk.edu.gaSchedule.algorithm;
  */
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import hk.edu.gaSchedule.model.Chromosome;
@@ -82,6 +83,14 @@ public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 			}				
 		}
 		popDec(population);
+	}
+	
+	@Override
+	protected List<T> replacement(List<T> population)
+	{
+		List<T> result = super.replacement(population);
+		result.sort(Comparator.comparing(Chromosome::getFitness, Comparator.reverseOrder()));
+		return result;
 	}
 	
 	// Starts and executes algorithm
