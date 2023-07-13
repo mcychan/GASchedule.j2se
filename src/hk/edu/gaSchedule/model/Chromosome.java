@@ -7,6 +7,8 @@ public interface Chromosome<T extends Chromosome<T> > {
 	public T makeNewFromPrototype(List<Float> positions);
 	
 	public T makeNewFromPrototype();
+	
+	public T makeEmptyFromPrototype(List<Integer> bounds);
 
     public float getFitness();
 
