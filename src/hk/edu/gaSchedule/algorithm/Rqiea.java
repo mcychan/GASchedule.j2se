@@ -25,7 +25,6 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
 	private float[][] _bounds;
 	private int _chromlen;
 
-	private float[] _fvals;
 	private T _bestval;
 	private float[] _best;
 	private float[][] _bestq;
@@ -53,7 +52,6 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
 				_chromlen = bounds.size();
 				_Q = new float[_populationSize * _chromlen * 2];
 				_P = new float[_populationSize * _chromlen];
-				_fvals = new float[_populationSize];
 				_bounds = new float[_chromlen][2];
 				_best = new float[_chromlen];
 				_bestq = new float[_chromlen][2];
@@ -106,16 +104,13 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
 	}
 	
 	private void storebest() {
-		float val = Float.MAX_VALUE;
 		int i_best = 0;
-		for (int i = 0; i < _populationSize; i++) {
-			if (_fvals[i] > val) {
-				val = _fvals[i];
+		for (int i = 1; i < _populationSize; i++) {
+			if (_chromosomes.get(i).dominates(_chromosomes.get(i_best)))
 				i_best = i;
-			}
 		}
 		
-		if (_bestval == null || val > _bestval.getFitness()) {
+		if (_bestval == null || _chromosomes.get(i_best).dominates(_bestval)) {
 			_bestval = _chromosomes.get(i_best);
 			System.arraycopy(_P, i_best * _chromlen, _best, 0, _chromlen);
 			
@@ -128,8 +123,14 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
 	}
 	
 	private void evaluate() {
-		for (int i = 0; i < _populationSize; ++i)
-			_fvals[i] = _chromosomes.get(i).getFitness();			
+		if(_currentGeneration > 0) {
+			for (int i = 0; i < _populationSize; ++i) {
+				float[] positions = new float[_chromlen];
+				int start = i * _chromlen;
+				_chromosomes.get(i).extractPositions(positions);
+				System.arraycopy(positions, 0, _P, start, _chromlen);
+			}
+		}
 	}
 	
 	private float sign(double x) {
@@ -228,6 +229,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
 		List<T> population = new ArrayList<>();
 		initialize(population);
 		_chromosomes = population;
+		_currentGeneration = 0;
 		observe();
 		evaluate();
 		storebest();
@@ -279,14 +281,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
 				totalChromosome = new ArrayList<>(population);
 				totalChromosome.addAll(_chromosomes);
 				List<Set<Integer> > newBestFront = nonDominatedSorting(totalChromosome);
-				_chromosomes = replacement(newBestFront, totalChromosome);
-				
-				for (int i = 0; i < _populationSize; ++i) {
-					float[] positions = new float[_chromlen];
-					int start = i * _chromlen;
-					_chromosomes.get(i).extractPositions(positions);
-					System.arraycopy(positions, 0, _P, start, _chromlen);
-				}
+				_chromosomes = replacement(newBestFront, totalChromosome);				
 			}
 			
 			observe();
