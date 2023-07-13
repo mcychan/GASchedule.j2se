@@ -123,14 +123,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
 	}
 	
 	private void evaluate() {
-		if(_currentGeneration > 0) {
-			for (int i = 0; i < _populationSize; ++i) {
-				float[] positions = new float[_chromlen];
-				int start = i * _chromlen;
-				_chromosomes.get(i).extractPositions(positions);
-				System.arraycopy(positions, 0, _P, start, _chromlen);
-			}
-		}
+		// not implemented			
 	}
 	
 	private float sign(double x) {
@@ -281,7 +274,14 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
 				totalChromosome = new ArrayList<>(population);
 				totalChromosome.addAll(_chromosomes);
 				List<Set<Integer> > newBestFront = nonDominatedSorting(totalChromosome);
-				_chromosomes = replacement(newBestFront, totalChromosome);				
+				_chromosomes = replacement(newBestFront, totalChromosome);
+				
+				for (int i = 0; i < _populationSize; ++i) {
+					float[] positions = new float[_chromlen];
+					int start = i * _chromlen;
+					_chromosomes.get(i).extractPositions(positions);
+					System.arraycopy(positions, 0, _P, start, _chromlen);
+				}
 			}
 			
 			observe();
