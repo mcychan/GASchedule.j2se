@@ -114,6 +114,32 @@ public class Schedule implements Chromosome<Schedule>
 	{
 		return makeNewFromPrototype(null);
 	}
+	
+	public Schedule makeEmptyFromPrototype(List<Integer> bounds)
+	{
+		// make new chromosome, copy chromosome setup
+		Schedule newChromosome = copy(this, true);
+		
+		int nr = _configuration.getNumberOfRooms();
+
+		// place classes at random position
+		List<CourseClass> c = _configuration.getCourseClasses();
+		for (CourseClass courseClass : c) {
+			// determine random position of class			
+			int dur = courseClass.Duration;
+
+			if(bounds != null) {
+				bounds.add(Constant.DAYS_NUM - 1);
+				bounds.add(nr - 1);
+				bounds.add(Constant.DAY_HOURS - 1 - dur);
+			}
+			
+			// insert in class table of chromosome
+			newChromosome._classes.put(courseClass, null);
+		}
+
+		return newChromosome;
+	}
 
 	// Performes crossover operation using to chromosomes and returns pointer to offspring
 	public Schedule crossover(Schedule parent, int numberOfCrossoverPoints, float crossoverProbability)
@@ -253,16 +279,17 @@ public class Schedule implements Chromosome<Schedule>
 		return n;
 	}
 	
-	private void repair(CourseClass cc1, int reservation1_index, Reservation reservation2)
+	private void repair(CourseClass cc1, Integer reservation1_index, Reservation reservation2)
 	{
 		int dur = cc1.Duration;
 		int nr = _configuration.getNumberOfRooms();
 		
-		for (int j = dur - 1; j >= 0; --j)
-		{
-			// remove class hour from current time-space slot
-			List<CourseClass> cl = _slots[reservation1_index + j];
-			cl.removeIf(cc -> cc == cc1);
+		if(reservation1_index != null) {
+			for (int j = dur - 1; j >= 0; --j) {
+				// remove class hour from current time-space slot
+				List<CourseClass> cl = _slots[reservation1_index + j];
+				cl.removeIf(cc -> cc == cc1);
+			}
 		}
 				
 		if(reservation2 == null) {			
@@ -434,7 +461,7 @@ public class Schedule implements Chromosome<Schedule>
 			int room = Math.abs((int) positions[i + 1] % nr);			
 			int time = Math.abs((int) positions[i + 2] % (Constant.DAY_HOURS - dur));
 			
-			Reservation reservation2 = Reservation.getReservation(nr, day, time, room);			
+			Reservation reservation2 = Reservation.getReservation(nr, day, time, room);
 			repair(cc, _classes.get(cc), reservation2);
 			
 			positions[i++] = reservation2.getDay();
