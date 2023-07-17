@@ -23,7 +23,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
 	private float[] _P; // observed classical population
 
 	private float[][] _bounds;
-	private int _chromlen;
+	private int _chromlen, _catastrophe;
 
 	private T _bestval;
 	private float[] _best;
@@ -41,6 +41,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
 	protected void initialize(List<T> population)
 	{		
 		_chromlen = 0;
+		_catastrophe = (int) _mutationProbability;
 		_bestval = null;
 		
 		List<Integer> bounds = new ArrayList<>();
@@ -92,7 +93,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
 			float[] positions = Arrays.copyOfRange(_P, start, start + _chromlen + 1);
 			T chromosome = _prototype.makeEmptyFromPrototype(null);
 			chromosome.updatePositions(positions);
-			if((Configuration.rand(100) <= _mutationProbability && i > _mutationProbability) || chromosome.getFitness() > _chromosomes.get(i).getFitness()) {
+			if((Configuration.rand(100) <= _catastrophe && i > _catastrophe) || chromosome.getFitness() > _chromosomes.get(i).getFitness()) {
 				_chromosomes.set(i, chromosome);
 				++_updated;
 			}
