@@ -106,7 +106,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
 	
 	private void storebest() {
 		int i_best = 0;
-		for (int i = 1; i < _populationSize; i++) {
+		for (int i = 1; i < _populationSize; ++i) {
 			if (_chromosomes.get(i).dominates(_chromosomes.get(i_best)))
 				i_best = i;
 		}
@@ -209,8 +209,6 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
 	// Returns pointer to best chromosomes in population
 	public T getResult()
     {
-		if(_bestval == null)
-			return null;
 		return _bestval;
     }
 	
