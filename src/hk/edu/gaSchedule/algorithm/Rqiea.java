@@ -193,8 +193,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
 		int q1 = i * _chromlen * 2;
 		int q2 = j * _chromlen * 2;
 
-		float[] buf = new float[2 * _chromlen];
-		System.arraycopy(_Q, q1, buf, 0, 2 * _chromlen);
+		float[] buf = Arrays.copyOfRange(_Q, q1, q1 + 2 * _chromlen + 1);
 
 		System.arraycopy(_Q, q2 + h1, _Q, q1 + h1 * 2, (h2 - h1) * 2);
 		System.arraycopy(buf, h1, _Q, q2 + h1 * 2, (h2 - h1) * 2);
