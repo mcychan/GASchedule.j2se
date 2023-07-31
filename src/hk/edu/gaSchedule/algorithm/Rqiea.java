@@ -1,5 +1,4 @@
 package hk.edu.gaSchedule.algorithm;
-
 /*
  * Zhang, G.X., Rong, H.N., Real-observation quantum-inspired evolutionary algorithm
  * for a class of numerical optimization problems. In: Lecture Notes
@@ -10,14 +9,14 @@ package hk.edu.gaSchedule.algorithm;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import hk.edu.gaSchedule.model.Chromosome;
 import hk.edu.gaSchedule.model.Configuration;
 
-public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
+public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 {
 	private int _currentGeneration = 0, _max_iterations = 5000;
+	private int _maxRepeat = Math.min(15, _max_iterations / 2);
 	
 	private float[] _Q; // quantum population
 	private float[] _P; // observed classical population
@@ -29,14 +28,14 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
 	private float[] _best;
 	private float[][] _bestq;
 	
-	private int _updated = 0;
+	private int _bestNotEnhance = 0, _updated = 0;
 
 	// Initializes Real observation QIEA
 	public Rqiea(T prototype, int numberOfCrossoverPoints, int mutationSize, float crossoverProbability, float mutationProbability)
 	{
-		super(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability);	
+		super(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability);		
 	}
-
+	
 	@Override
 	protected void initialize(List<T> population)
 	{		
@@ -73,7 +72,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
 			_bounds[i][1] = bounds.get(i);
 	}
 
-	private void observe() {
+	private void observe(List<T> population) {
 		_updated = 0;
 		for (int i = 0; i < _populationSize; ++i) {
 			for (int j = 0; j < _chromlen; ++j) {
@@ -86,33 +85,33 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
 					_P[pij] = _Q[qij + 1] * _Q[qij + 1];
 				
 				_P[pij] *= _bounds[j][1] - _bounds[j][0];
-				_P[pij] += _bounds[j][0];				
+				_P[pij] += _bounds[j][0];
 			}
 			
 			int start = i * _chromlen;
 			float[] positions = Arrays.copyOfRange(_P, start, start + _chromlen + 1);
 			T chromosome = _prototype.makeEmptyFromPrototype(null);
 			chromosome.updatePositions(positions);
-			if((Configuration.rand(100) <= _catastrophe && i > _catastrophe) || chromosome.getFitness() > _chromosomes.get(i).getFitness()) {
-				_chromosomes.set(i, chromosome);
+			if((Configuration.rand(100) <= _catastrophe && i > _catastrophe) || chromosome.getFitness() > population.get(i).getFitness()) {
+				population.set(i, chromosome);
 				++_updated;
 			}
 			else {
-				_chromosomes.get(i).extractPositions(positions);
+				population.get(i).extractPositions(positions);
 				System.arraycopy(positions, 0, _P, start, _chromlen);
 			}
 		}
 	}
 	
-	private void storebest() {
+	private void storebest(List<T> population) {
 		int i_best = 0;
 		for (int i = 1; i < _populationSize; ++i) {
-			if (_chromosomes.get(i).dominates(_chromosomes.get(i_best)))
+			if (population.get(i).dominates(population.get(i_best)))
 				i_best = i;
 		}
 		
-		if (_bestval == null || _chromosomes.get(i_best).dominates(_bestval)) {
-			_bestval = _chromosomes.get(i_best);
+		if (_bestval == null || population.get(i_best).dominates(_bestval)) {
+			_bestval = population.get(i_best);
 			System.arraycopy(_P, i_best * _chromlen, _best, 0, _chromlen);
 			
 			int start = i_best * _chromlen * 2;
@@ -208,90 +207,88 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaII<T>
 	
 	// Returns pointer to best chromosomes in population
 	public T getResult()
-    {
+	{
 		return _bestval;
-    }
+	}
 	
 	// Starts and executes algorithm
+	@Override
 	public void run(int maxRepeat, double minFitness)
-    {
+	{
 		if (_prototype == null)
 			return;
-
-		List<T> population = new ArrayList<>();
-		initialize(population);
-		_chromosomes = population;
+		
+		List<T>[] pop = new ArrayList[2];
+		pop[0] = new ArrayList<>();
+		initialize(pop[0]);
 		_currentGeneration = 0;
-		observe();
+		observe(pop[0]);
 		evaluate();
-		storebest();
+		storebest(pop[0]);
 
-		int bestNotEnhance = 0;
+		_bestNotEnhance = 0;
 		double lastBestFit = 0.0;
 
-		while(_currentGeneration < _max_iterations) {				
+		int cur = 0, next = 1;
+		while(_currentGeneration < _max_iterations)
+		{
 			T best = getResult();
 			if(_currentGeneration > 0) {
-				String status = String.format("\rFitness: %f\t Generation: %d \t Updated: %d", best.getFitness(), _currentGeneration, _updated);
-				System.out.print(status);
-				
-				// algorithm has reached criteria?
-				if (best.getFitness() > minFitness)
-					break;
-	
 				double difference = Math.abs(best.getFitness() - lastBestFit);
-				if (difference <= 0.0000001)
-					++bestNotEnhance;
+				if (difference <= 1e-6)
+					++_bestNotEnhance;
 				else {
 					lastBestFit = best.getFitness();
-					bestNotEnhance = 0;
+					_bestNotEnhance = 0;
 				}
 
-				if (bestNotEnhance > (maxRepeat / 100))		
+				String status = String.format("\rFitness: %f\t Generation: %d    ", best.getFitness(), _currentGeneration);	
+				if(_bestNotEnhance >= _maxRepeat)
+					status = String.format("\rFitness: %f\t Generation: %d ...", best.getFitness(), _currentGeneration);
+				System.out.print(status);
+				
+				if (best.getFitness() > minFitness) 
+					break;
+
+				if (_bestNotEnhance > (maxRepeat / 50))
 					reform();
-			}				
-			
+			}
+
 			/******************* crossover *****************/
-			List<T> offspring = crossing(_chromosomes);			
+			List<T> offspring = crossing(pop[cur]);
 			
 			/******************* mutation *****************/
 			for(T child : offspring)
 				child.mutation(_mutationSize, _mutationProbability);
+
+			pop[cur].addAll(offspring);
 			
-			List<T> totalChromosome = new ArrayList<>(population);
-			totalChromosome.addAll(offspring);
-			
-			/******************* non-dominated sorting *****************/
-			List<Set<Integer> > front = nonDominatedSorting(totalChromosome);
-			
-			/******************* selection *****************/
-			population = replacement(front, totalChromosome);
-			_populationSize = population.size();
-			
-			/******************* comparison *****************/
-			if(_currentGeneration > 0) {
-				totalChromosome = new ArrayList<>(population);
-				totalChromosome.addAll(_chromosomes);
-				List<Set<Integer> > newBestFront = nonDominatedSorting(totalChromosome);
-				_chromosomes = replacement(newBestFront, totalChromosome);
-				
+			/******************* replacement *****************/
+			pop[next] = replacement(pop[cur]);
+			_bestval = pop[next].get(0).dominates( pop[cur].get(0)) ? pop[next].get(0) : pop[cur].get(0);
+
+			int temp = cur;
+			cur = next;
+			next = temp;
+
+			if(_bestNotEnhance >= _maxRepeat && _currentGeneration % 4 == 0) {
 				for (int i = 0; i < _populationSize; ++i) {
 					float[] positions = new float[_chromlen];
 					int start = i * _chromlen;
-					_chromosomes.get(i).extractPositions(positions);
+					pop[cur].get(i).extractPositions(positions);
 					System.arraycopy(positions, 0, _P, start, _chromlen);
 				}
-			}
+				
+				observe(pop[cur]);
+				evaluate();
+				storebest(pop[cur]);
+				update();
+				recombine();
+			}			
 			
-			observe();
-			evaluate();
-			storebest();
-			update();
-			recombine();
 			++_currentGeneration;
 		}
 	}
-
 	
 	@Override
 	public String toString()

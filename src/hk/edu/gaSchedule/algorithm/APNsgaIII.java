@@ -16,6 +16,7 @@ import hk.edu.gaSchedule.model.Chromosome;
 public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 {
 	private int _currentGeneration = 0, _max_iterations = 5000;
+	private int _maxRepeat = Math.min(15, _max_iterations / 2);
 	
 	// Worst of chromosomes
 	protected T _worst;
@@ -71,7 +72,7 @@ public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 					_best = tumor;
 			}
 			else {
-				if(bestNotEnhance >= 15 && N < nMax) {
+				if(bestNotEnhance >= _maxRepeat && N < nMax) {
 					++N;
 					if(_worst.dominates(tumor)) {
 						population.add(tumor);
@@ -122,7 +123,7 @@ public class APNsgaIII<T extends Chromosome<T> > extends NsgaIII<T>
 				}
 				
 				String status = String.format("\rFitness: %f\t Generation: %d    ", best.getFitness(), _currentGeneration);	
-				if(bestNotEnhance >= 15)
+				if(bestNotEnhance >= _maxRepeat)
 					status = String.format("\rFitness: %f\t Generation: %d ...", best.getFitness(), _currentGeneration);
 				System.out.print(status);
 				
