@@ -90,7 +90,8 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 			float[] positions = Arrays.copyOfRange(_P, start, start + _chromlen + 1);
 			T chromosome = _prototype.makeEmptyFromPrototype(null);
 			chromosome.updatePositions(positions);
-			if((Configuration.rand(100) <= _catastrophe && i <= _catastrophe) || chromosome.getFitness() > population.get(i).getFitness()) {
+			if(population.get(i).getFitness() <= 0 || 
+					(Configuration.rand(100) <= _catastrophe && population.get(i).dominates(chromosome) )) {
 				population.set(i, chromosome);
 				++_updated;
 			}
@@ -124,7 +125,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 		// not implemented			
 	}
 	
-	private float sign(double x) {
+	private static float sign(double x) {
 		if (x > 0)
 			return 1;
 		if (x < 0)
@@ -132,7 +133,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 		return 0;
 	}
 	
-	private float lut(float alpha, float beta, float alphabest, float betabest) {
+	private static float lut(float alpha, float beta, float alphabest, float betabest) {
 		final double M_PI_2 = Math.PI / 2;
 		float eps = 1e-5f;
 		float xi = (float) Math.atan(beta / (alpha + eps));
@@ -276,7 +277,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 				update();
 				recombine();
 			}			
-			
+
 			++_currentGeneration;
 		}
 	}
