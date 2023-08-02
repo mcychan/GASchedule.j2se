@@ -32,7 +32,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 	// Initializes Real observation QIEA
 	public Rqiea(T prototype, int numberOfCrossoverPoints, int mutationSize, float crossoverProbability, float mutationProbability)
 	{
-		super(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability);		
+		super(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability);
 	}
 	
 	@Override
@@ -90,7 +90,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 			float[] positions = Arrays.copyOfRange(_P, start, start + _chromlen + 1);
 			T chromosome = _prototype.makeEmptyFromPrototype(null);
 			chromosome.updatePositions(positions);
-			if(population.get(i).getFitness() <= 0 || 
+			if(population.get(i).getFitness() < chromosome.getFitness() || 
 					(Configuration.rand(100) <= _catastrophe && population.get(i).dominates(chromosome) )) {
 				population.set(i, chromosome);
 				++_updated;
