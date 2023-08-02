@@ -27,12 +27,12 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 	private float[] _bestval;
 	private float[][] _bestq;
 	
-	private int _bestNotEnhance = 0, _updated = 0;
+	private int _bestNotEnhance = 0;
 
 	// Initializes Real observation QIEA
 	public Rqiea(T prototype, int numberOfCrossoverPoints, int mutationSize, float crossoverProbability, float mutationProbability)
 	{
-		super(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability);
+		super(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability);		
 	}
 	
 	@Override
@@ -71,7 +71,6 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 	}
 
 	private void observe(List<T> population) {
-		_updated = 0;
 		for (int i = 0; i < _populationSize; ++i) {
 			for (int j = 0; j < _chromlen; ++j) {
 				int pij = i * _chromlen + j;
@@ -93,7 +92,6 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 			if(population.get(i).getFitness() < chromosome.getFitness() || 
 					(Configuration.rand(100) <= _catastrophe && population.get(i).dominates(chromosome) )) {
 				population.set(i, chromosome);
-				++_updated;
 			}
 			else {
 				population.get(i).extractPositions(positions);
