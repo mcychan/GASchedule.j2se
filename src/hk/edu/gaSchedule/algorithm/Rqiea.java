@@ -86,14 +86,14 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 			}
 			
 			int start = i * _chromlen;
-			float[] positions = Arrays.copyOfRange(_P, start, start + _chromlen + 1);
-			T chromosome = _prototype.makeEmptyFromPrototype(null);
-			chromosome.updatePositions(positions);
-			if(population.get(i).getFitness() < chromosome.getFitness() || 
-					(Configuration.rand(100) <= _catastrophe && population.get(i).dominates(chromosome) )) {
+			if(population.get(i).getFitness() <= 0 || Configuration.rand(100) <= _catastrophe) {				
+				float[] positions = Arrays.copyOfRange(_P, start, start + _chromlen + 1);
+				T chromosome = _prototype.makeEmptyFromPrototype(null);
+				chromosome.updatePositions(positions);
 				population.set(i, chromosome);
 			}
 			else {
+				float[] positions = new float[_chromlen];
 				population.get(i).extractPositions(positions);
 				System.arraycopy(positions, 0, _P, start, _chromlen);
 			}
