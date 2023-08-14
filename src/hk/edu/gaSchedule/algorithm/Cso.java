@@ -125,7 +125,10 @@ public class Cso<T extends Chromosome<T> > extends NsgaIII<T> {
 			population.set(i, chromosome);
 		}
 		
-		return super.replacement(population);
+		List<T> result = super.replacement(population);
+		result.get(0).extractPositions(_current_position[0]);
+		_sBestScore = _current_position[0].clone();
+		return result;
 	}
 	
 	// Starts and executes algorithm
@@ -179,9 +182,6 @@ public class Cso<T extends Chromosome<T> > extends NsgaIII<T> {
 			/******************* replacement *****************/	
 			pop[next] = replacement(pop[cur]);
 			_best = pop[next].get(0).dominates( pop[cur].get(0)) ? pop[next].get(0) : pop[cur].get(0);
-			
-			_best.extractPositions(_current_position[0]);
-			_sBestScore = _current_position[0].clone();
 			
 			int temp = cur;
 			cur = next;
