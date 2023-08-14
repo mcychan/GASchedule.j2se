@@ -27,11 +27,16 @@
 		</repository>
 	</repositories>
 
-    <dependencies>
+	<dependencies>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math3</artifactId>
+			<version>3.6.1</version>
 		</dependency>
 		<dependency>
 			<groupId>io.undertow</groupId>
@@ -48,7 +53,7 @@
 			<artifactId>undertow-websockets-jsr</artifactId>
 			<version>${undertow.version}</version>
 		</dependency>
-    </dependencies> 
+	</dependencies> 
 	<build>
 		<sourceDirectory>${basedir}/src</sourceDirectory>
 		<resources>
@@ -59,7 +64,7 @@
 		<plugins>			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>        
+				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<source>${javac.source}</source>
 					<target>${javac.target}</target>
@@ -78,15 +83,15 @@
 						</goals>
 						<configuration>
 							<outputDirectory>${project.build.directory}</outputDirectory>
-							<resources>          
+							<resources>
 								<resource>
 									<directory>src</directory>
-									<includes>									
-										<include>*.json</include>										
+									<includes>
+										<include>*.json</include>
 									</includes>
 								</resource>
-							</resources>              
-						</configuration>            
+							</resources>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
