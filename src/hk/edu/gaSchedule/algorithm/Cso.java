@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.math3.special.Gamma;
-
 import hk.edu.gaSchedule.model.Chromosome;
 import hk.edu.gaSchedule.model.Configuration;
 
@@ -35,11 +33,30 @@ public class Cso<T extends Chromosome<T> > extends NsgaIII<T> {
 		_pa = .25;
 		_beta = 1.5;
 		
-		double num = Gamma.gamma(1 + _beta) * Math.sin(Math.PI * _beta / 2);
-		double den = Gamma.gamma((1 + _beta) / 2) * _beta * Math.pow(2, (_beta - 1) / 2);
+		double num = gamma(1 + _beta) * Math.sin(Math.PI * _beta / 2);
+		double den = gamma((1 + _beta) / 2) * _beta * Math.pow(2, (_beta - 1) / 2);
 		_σu = Math.pow(num / den, 1 / _beta);
 		_σv = 1;
-	}	
+	}
+
+	private static double gamma(double z)
+	{
+		if (z < 0.5)
+			return Math.PI / Math.sin(Math.PI * z) / gamma(1.0 - z);
+
+		// Lanczos approximation g=5, n=7
+		double[] coef = new double[] { 1.000000000190015, 76.18009172947146, -86.50532032941677,
+		24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5 };
+
+		double zz = z - 1.0;
+		double b = zz + 5.5; // g + 0.5
+		double sum = coef[0];
+		for (int i = 1; i < coef.length; ++i)
+			sum += coef[i] / (zz + i);
+
+		double LogSqrtTwoPi = 0.91893853320467274178;
+		return Math.exp(LogSqrtTwoPi + Math.log(sum) - b + Math.log(b) * (zz + 0.5));
+	}
 	
 	protected void initialize(List<T> population)
 	{
