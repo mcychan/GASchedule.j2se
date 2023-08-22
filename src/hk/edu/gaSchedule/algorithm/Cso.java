@@ -105,7 +105,7 @@ public class Cso<T extends Chromosome<T> > extends NsgaIII<T> {
 				_sBestScore = optimum(_sBestScore, population.get(i));
 
 			for(int j = 0; j < _chromlen; ++j)
-				_current_position[i][j] += _random.nextGaussian() * 0.01 * S * (current_position[i][j] - _sBestScore[j]);
+				_current_position[i][j] += (float) (_random.nextGaussian() * 0.01 * S * (current_position[i][j] - _sBestScore[j]));
 
 			_current_position[i] = optimum(_current_position[i], population.get(i));
 		}
@@ -123,7 +123,7 @@ public class Cso<T extends Chromosome<T> > extends NsgaIII<T> {
 					do {
 						d2 = Configuration.rand(5);
 					} while(d1 == d2);
-					_current_position[i][j] += Configuration.random() * (current_position[d1][j] - current_position[d2][j]);
+					_current_position[i][j] += (float) (Configuration.random() * (current_position[d1][j] - current_position[d2][j]));
 				}
 			}
 			_current_position[i] = optimum(_current_position[i], population.get(i));
