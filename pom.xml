@@ -6,14 +6,14 @@
 	<artifactId>GASchedule</artifactId>
 	<version>1.2.3</version>
 	<packaging>jar</packaging>
-	    
-    <name>GA Schedule</name>
-    <description>Making a Class Schedule Using a Genetic Algorithm</description>
+
+	<name>GA Schedule</name>
+	<description>Making a Class Schedule Using a Genetic Algorithm</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<undertow.version>2.0.1.Final</undertow.version>
 		<javac.source>1.8</javac.source>
-        <javac.target>1.8</javac.target>
+		<javac.target>1.8</javac.target>
 	</properties>
 	<repositories>
 		<repository>
@@ -32,11 +32,6 @@
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.7</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-math3</artifactId>
-			<version>3.6.1</version>
 		</dependency>
 		<dependency>
 			<groupId>io.undertow</groupId>
