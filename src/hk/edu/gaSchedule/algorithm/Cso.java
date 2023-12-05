@@ -19,8 +19,6 @@ public class Cso<T extends Chromosome<T> > extends NsgaIII<T> {
 	private int _chromlen;
 	
 	private double _pa, _beta, _σu, _σv;
-		
-	private float[] _sBestScore;	
 
 	private float[][] _current_position = null;
 	
@@ -92,20 +90,21 @@ public class Cso<T extends Chromosome<T> > extends NsgaIII<T> {
 	private void updatePosition1(List<T> population)
 	{
 		float[][] current_position = _current_position.clone();
+		float[] sBestScore = null;
 		for(int i = 0; i < _populationSize; ++i) {
 			double u = _random.nextGaussian() * _σu;
 			double v = _random.nextGaussian() * _σv;
 			double S = u / Math.pow(Math.abs(v), 1 / _beta);
 			
 			if(i == 0) {
-				_sBestScore = new float[_chromlen];
-				population.get(i).extractPositions(_sBestScore);
+				sBestScore = new float[_chromlen];
+				population.get(i).extractPositions(sBestScore);
 			}
 			else
-				_sBestScore = optimum(_sBestScore, population.get(i));
+				sBestScore = optimum(sBestScore, population.get(i));
 
 			for(int j = 0; j < _chromlen; ++j)
-				_current_position[i][j] += (float) (_random.nextGaussian() * 0.01 * S * (current_position[i][j] - _sBestScore[j]));
+				_current_position[i][j] += (float) (_random.nextGaussian() * 0.01 * S * (current_position[i][j] - sBestScore[j]));
 
 			_current_position[i] = optimum(_current_position[i], population.get(i));
 		}
@@ -141,11 +140,8 @@ public class Cso<T extends Chromosome<T> > extends NsgaIII<T> {
 			chromosome.updatePositions(_current_position[i]);
 			population.set(i, chromosome);
 		}
-		
-		List<T> result = super.replacement(population);
-		result.get(0).extractPositions(_current_position[0]);
-		_sBestScore = _current_position[0].clone();
-		return result;
+
+		return super.replacement(population);
 	}
 	
 	// Starts and executes algorithm
