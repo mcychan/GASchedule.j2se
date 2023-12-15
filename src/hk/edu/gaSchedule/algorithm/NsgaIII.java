@@ -62,7 +62,7 @@ public class NsgaIII<T extends Chromosome<T> >
 		_mutationProbability = mutationProbability;
 		
 		_objDivision = new ArrayList<>();
-		if(Criteria.weights.length < 8)
+		if(prototype.getObjectives().length < 8)
 			_objDivision.add(6);
 		else {
 			_objDivision.add(3);
