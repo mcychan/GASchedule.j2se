@@ -16,7 +16,6 @@ import java.util.stream.DoubleStream;
 
 import hk.edu.gaSchedule.model.Chromosome;
 import hk.edu.gaSchedule.model.Configuration;
-import hk.edu.gaSchedule.model.Criteria;
 
 public class NsgaIII<T extends Chromosome<T> >
 {
@@ -514,7 +513,7 @@ public class NsgaIII<T extends Chromosome<T> >
 	protected List<T> replacement(List<T> population)
 	{
 		List<ReferencePoint> rps = new ArrayList<>();			
-		ReferencePoint.generateReferencePoints(rps, Criteria.weights.length, _objDivision);			
+		ReferencePoint.generateReferencePoints(rps, _prototype.getObjectives().length, _objDivision);			
 		return selection(population, rps);
 	}
 	
