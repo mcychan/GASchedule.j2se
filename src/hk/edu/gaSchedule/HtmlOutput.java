@@ -13,18 +13,18 @@ import hk.edu.gaSchedule.model.Schedule;
 
 public class HtmlOutput
 {
-    private static final int ROOM_COLUMN_NUMBER = Constant.DAYS_NUM + 1;
-    private static final int ROOM_ROW_NUMBER = Constant.DAY_HOURS + 1;
+	private static final int ROOM_COLUMN_NUMBER = Constant.DAYS_NUM + 1;
+	private static final int ROOM_ROW_NUMBER = Constant.DAY_HOURS + 1;
 
 	private static final String COLOR1 = "#319378";
 	private static final String COLOR2 = "#CE0000";
-	private static char[] CRITERIAS = { 'R', 'S', 'L', 'P', 'G'};
-	private static String[] OK_DESCR = { "Current room has no overlapping", "Current room has enough seats", "Current room with enough computers if they are required",
+	private static final char[] CRITERIAS = { 'R', 'S', 'L', 'P', 'G'};
+	private static final String[] OK_DESCR = { "Current room has no overlapping", "Current room has enough seats", "Current room with enough computers if they are required",
 		"Professors have no overlapping classes", "Student groups has no overlapping classes" };
-	private static String[] FAIL_DESCR = { "Current room has overlapping", "Current room has not enough seats", "Current room with not enough computers if they are required",
+	private static final String[] FAIL_DESCR = { "Current room has overlapping", "Current room has not enough seats", "Current room with not enough computers if they are required",
 			"Professors have overlapping classes", "Student groups has overlapping classes" };
-	private static String[] PERIODS = {"", "9 - 10", "10 - 11", "11 - 12", "12 - 13", "13 - 14", "14 - 15", "15 - 16", "16 - 17", "17 - 18", "18 - 19", "19 - 20", "20 - 21" };
-	private static String[] WEEK_DAYS = { "MON", "TUE", "WED", "THU", "FRI"};
+	private static final String[] PERIODS = {"", "9 - 10", "10 - 11", "11 - 12", "12 - 13", "13 - 14", "14 - 15", "15 - 16", "16 - 17", "17 - 18", "18 - 19", "19 - 20", "20 - 21" };
+	private static final String[] WEEK_DAYS = { "MON", "TUE", "WED", "THU", "FRI"};
 
 	private static String getTableHeader(Room room)
 	{
@@ -52,15 +52,15 @@ public class HtmlOutput
 			sb.append("Lab<br />");
 
 		for(int i=0; i< CRITERIAS.length; ++i)
-        {
+		{
 			sb.append("<span style='color:");
 			if(criterias[ci + i])
-            {
+			{
 				sb.append(COLOR1).append("' title='");
 				sb.append(OK_DESCR[i]);
 			}
 			else
-            {
+			{
 				sb.append(COLOR2).append("' title='");
 				sb.append(FAIL_DESCR[i]);
 			}
@@ -102,19 +102,19 @@ public class HtmlOutput
 					slotTable.get(nextRow)[dayId] = -1;
 			}
 
-			String[] roomSchedule = timeTable.get(key);			
+			String[] roomSchedule = timeTable.get(key);
 			if (roomSchedule == null) {
 				roomSchedule = new String[ROOM_COLUMN_NUMBER];
 				timeTable.put(key, roomSchedule);
 			}
-			roomSchedule[dayId] = getCourseClass(cc, solution.getCriteria(), ci);			
+			roomSchedule[dayId] = getCourseClass(cc, solution.getCriteria(), ci);
 			ci += CRITERIAS.length;
 		}
 		return timeTable;
 	}
 
 	private static String getHtmlCell(String content, int rowspan)
-    {
+	{
 		if (rowspan == 0)
 			return "<td></td>";
 
@@ -154,15 +154,15 @@ public class HtmlOutput
 					sb.append(getTableHeader(room));
 				}
 				else
-                {						
-					Point key = new Point(periodId, roomId);							
+				{
+					Point key = new Point(periodId, roomId);
 					int[] roomDurations = slotTable.get(key);
 					String[] roomSchedule = timeTable.get(key);
 					sb.append("<tr>");
 					for (int dayId = 0; dayId < ROOM_COLUMN_NUMBER; ++dayId)
 					{
 						if(dayId == 0)
-                        {
+						{
 							sb.append("<th style='border: .1em solid black; padding: .25em' scope='row' colspan='2'>").append(PERIODS[periodId]).append("</th>\n");
 							continue;
 						}
@@ -171,9 +171,9 @@ public class HtmlOutput
 							continue;
 
 						String content = (roomSchedule != null) ? roomSchedule[dayId] : null;
-						sb.append(getHtmlCell(content, roomDurations[dayId]));							
+						sb.append(getHtmlCell(content, roomDurations[dayId]));
 					}
-					sb.append("</tr>\n");							
+					sb.append("</tr>\n");
 				}
 
 				if (periodId == ROOM_ROW_NUMBER - 1)
