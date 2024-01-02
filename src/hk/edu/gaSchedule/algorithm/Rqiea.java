@@ -32,18 +32,18 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 	// Initializes Real observation QIEA
 	public Rqiea(T prototype, int numberOfCrossoverPoints, int mutationSize, float crossoverProbability, float mutationProbability)
 	{
-		super(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability);		
+		super(prototype, numberOfCrossoverPoints, mutationSize, Math.max(50, crossoverProbability), mutationProbability);
 	}
-	
+
 	@Override
 	protected void initialize(List<T> population)
-	{		
+	{
 		_chromlen = 0;
 		_catastrophe = (int) _mutationProbability;
-		
+
 		List<Integer> bounds = new ArrayList<>();
-		for (int i = 0; i < _populationSize; ++i) {		
-			if(i < 1) {				
+		for (int i = 0; i < _populationSize; ++i) {
+			if(i < 1) {
 				// initialize new population with chromosomes randomly built using prototype
 				population.add(_prototype.makeEmptyFromPrototype(bounds));
 				
@@ -56,7 +56,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 			}
 			else
 				population.add(_prototype.makeEmptyFromPrototype(null));
-			
+
 			for (int j = 0; j < _chromlen; ++j) {
 				int qij = i * 2 * _chromlen + 2 * j;
 				float alpha = 2.f * (float) Configuration.random() - 1;
@@ -65,7 +65,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 				_Q[qij + 1] = beta;
 			}
 		}
-		
+
 		for (int i = 0; i < bounds.size(); ++i)
 			_bounds[i][1] = bounds.get(i);
 	}
@@ -99,7 +99,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 			}
 		}
 	}
-	
+
 	private void storebest(List<T> population) {
 		int i_best = 0;
 		for (int i = 1; i < _populationSize; ++i) {
@@ -164,7 +164,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 				int qij = 2 * (i * _chromlen + j);
 				float[] qprim = new float[2];
 
-				double k = Math.PI / (100 + _currentGeneration % 100);
+				double k = Math.PI / (100 + _bestNotEnhance % 100);
 				double theta = k * lut(_Q[qij], _Q[qij + 1], _bestq[j][0], _bestq[j][1]);
 
 				qprim[0] = (float) (_Q[qij] * Math.cos(theta) + _Q[qij + 1] * (-Math.sin(theta)));
@@ -199,8 +199,18 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 			_Q[q1 + k * 2] = _Q[q2 + k * 2];
 			_Q[q2 + k * 2] = tmp;
 		}
-	}	
-	
+	}
+
+	@Override
+	protected void reform()
+	{
+		Configuration.seed();
+		if(_crossoverProbability < 55)
+			_crossoverProbability += .5f;
+		else if(_mutationProbability < 20)
+			_mutationProbability += .5f;
+	}
+
 	// Starts and executes algorithm
 	@Override
 	public void run(int maxRepeat, double minFitness)
@@ -274,12 +284,12 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 				storebest(pop[cur]);
 				update();
 				recombine();
-			}			
+			}
 
 			++_currentGeneration;
 		}
 	}
-	
+
 	@Override
 	public String toString()
 	{
