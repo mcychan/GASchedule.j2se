@@ -159,7 +159,7 @@ public class Rqiea<T extends Chromosome<T> > extends NsgaIII<T>
 	}
 	
 	private void update() {
-		for (int i = 0; i < _populationSize; ++i) {
+		for (int i = 1; i < _populationSize; i += 2) {
 			for (int j = 0; j < _chromlen; ++j) {
 				int qij = 2 * (i * _chromlen + j);
 				float[] qprim = new float[2];
