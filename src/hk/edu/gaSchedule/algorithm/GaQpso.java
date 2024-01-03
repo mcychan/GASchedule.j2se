@@ -11,13 +11,14 @@ import java.util.List;
 import java.util.Random;
 
 import hk.edu.gaSchedule.model.Chromosome;
+import hk.edu.gaSchedule.model.Configuration;
 
 public class GaQpso<T extends Chromosome<T> > extends NsgaIII<T> {
 	private int _currentGeneration = 0, _max_iterations = 5000;
 	
 	private int _chromlen;
 
-	private float[] _gBest, _pBestScore;	
+	private float[] _gBest, _pBestScore;
 			
 	private float[][] _pBestPosition = null, _current_position = null;
 
@@ -40,9 +41,9 @@ public class GaQpso<T extends Chromosome<T> > extends NsgaIII<T> {
 			population.add(_prototype.makeNewFromPrototype(positions));	
 			
 			if(i < 1) {
-				_chromlen = positions.size();				
+				_chromlen = positions.size();
 				_gBest = new float[_chromlen];
-				_pBestScore = new float[_populationSize];				
+				_pBestScore = new float[_populationSize];
 				_pBestPosition = new float[_populationSize][_chromlen];
 				_current_position = new float[_populationSize][_chromlen];
 			}
@@ -104,7 +105,7 @@ public class GaQpso<T extends Chromosome<T> > extends NsgaIII<T> {
 				double u = _random.nextDouble();
 				double p = phi * _pBestPosition[i][j] + (1 - phi) * _gBest[j];
 				double np = N(p, mBest[j], mBest[j] - _pBestPosition[i][j]);
-				double NP = (_random.nextDouble() < p) ? np : p; 
+				double NP = (Configuration.rand(100) < _mutationProbability) ? np : p; 
 				
 				if(_random.nextDouble() > .5)
 					_current_position[i][j] += (float) (NP + alpha * Math.abs(mBest[j] - currentPosition[i][j]) * Math.log(1.0 / u));
