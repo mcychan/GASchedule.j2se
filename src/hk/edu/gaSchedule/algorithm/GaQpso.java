@@ -103,7 +103,7 @@ public class GaQpso<T extends Chromosome<T> > extends NsgaIII<T> {
 				double u = _random.nextDouble();
 				double p = phi * _pBestPosition[i][j] + (1 - phi) * _gBest[j];
 				double np = gaussian(p, mBest[j], mBest[j] - _pBestPosition[i][j]);
-				double NP = (Configuration.rand(100) < _mutationProbability) ? np : p; 
+				double NP = (Configuration.rand(100) < _mutationProbability) ? p : np; 
 				
 				if(_random.nextDouble() > .5)
 					_current_position[i][j] += (float) (NP + alpha * Math.abs(mBest[j] - currentPosition[i][j]) * Math.log(1.0 / u));
