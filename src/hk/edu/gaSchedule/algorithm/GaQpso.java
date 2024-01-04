@@ -65,17 +65,19 @@ public class GaQpso<T extends Chromosome<T> > extends NsgaIII<T> {
 		return positions;
 	}
 	
-	// return N(x) = standard Gaussian N
-	private static double N(double x)
+	// return gaussian(x) = standard Gaussian N
+	private static double gaussian(double x)
 	{
-        return Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI);
-    }
+		return Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI);
+	}
 
-    // return N(x, mu, sigma) = Gaussian N with mean mu and stddev sigma
-	private static double N(double x, float mu, float sigma)
+	// return gaussian(x, mu, sigma) = Gaussian N with mean mu and stddev sigma
+	private static double gaussian(double x, float mu, float sigma)
 	{
-        return N((x - mu) / sigma) / sigma;
-    }
+		if(sigma == 0)
+			return gaussian(x);
+		return gaussian((x - mu) / sigma) / sigma;
+	}
 
 	private void updatePosition(List<T> population)
 	{
@@ -104,7 +106,7 @@ public class GaQpso<T extends Chromosome<T> > extends NsgaIII<T> {
 				double phi = _random.nextDouble();
 				double u = _random.nextDouble();
 				double p = phi * _pBestPosition[i][j] + (1 - phi) * _gBest[j];
-				double np = N(p, mBest[j], mBest[j] - _pBestPosition[i][j]);
+				double np = gaussian(p, mBest[j], mBest[j] - _pBestPosition[i][j]);
 				double NP = (Configuration.rand(100) < _mutationProbability) ? np : p; 
 				
 				if(_random.nextDouble() > .5)
