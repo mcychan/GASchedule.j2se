@@ -191,6 +191,6 @@ public class GaQpso<T extends Chromosome<T> > extends NsgaIII<T> {
 	@Override
 	public String toString()
 	{
-		return "Gaussian distributed local attractor QPSO (GAQPSO) algorithm";
+		return "Gaussian distributed local attractor QPSO (GAQPSO)";
 	}
 }
