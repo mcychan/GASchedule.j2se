@@ -84,17 +84,13 @@ public class GaQpso<T extends Chromosome<T> > extends NsgaIII<T> {
 		float[] mBest = new float[_chromlen];
 		float[][] currentPosition = _current_position.clone();
 		for(int i = 0; i < _populationSize; ++i) {
-			if(i == 0)
-				population.get(i).extractPositions(_gBest);
-			else {
-				float fitness = population.get(i).getFitness();
-				if(fitness > _pBestScore[i]) {
-					_pBestScore[i] = fitness;
-					population.get(i).extractPositions(_current_position[i]);
-					_pBestPosition[i] = _current_position[i].clone();
-				}
-				_gBest = optimum(_gBest, population.get(i));
+			float fitness = population.get(i).getFitness();
+			if(fitness > _pBestScore[i]) {
+				_pBestScore[i] = fitness;
+				population.get(i).extractPositions(_current_position[i]);
+				_pBestPosition[i] = _current_position[i].clone();
 			}
+			_gBest = optimum(_gBest, population.get(i));
 			
 			for(int j = 0; j < _chromlen; ++j)
 				mBest[j] += _pBestPosition[i][j] / _populationSize;
