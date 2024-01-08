@@ -71,9 +71,9 @@ public class NsgaIII<T extends Chromosome<T> >
 
 	// Returns pointer to best chromosomes in population
 	public T getResult()
-    {
+	{
 		return _best;
-    }
+	}
 	
 	private static class ReferencePoint {
 		private int memberSize;
@@ -127,7 +127,7 @@ public class NsgaIII<T extends Chromosome<T> >
 				return -1;
 
 			Integer[] members = potentialMembers.keySet().toArray(new Integer[0]);
-			return members[Configuration.rand(potentialMembers.size())];			
+			return members[Configuration.rand(potentialMembers.size())];
 		}
 		
 		void removePotentialMember(Integer memberInd)
@@ -158,21 +158,21 @@ public class NsgaIII<T extends Chromosome<T> >
 	
 	private static double perpendicularDistance(final double[] direction, final double[] point)
 	{
-	    double numerator = 0, denominator = 0;
-	    for (int i = 0; i < direction.length; ++i) {
-	        numerator += direction[i] * point[i];
-	        denominator += Math.pow(direction[i], 2);
-	    }
-	    
-	    if(denominator <= 0)
-	    	return Double.MAX_VALUE;
-	    
-	    double k = numerator / denominator;
-	    double d = 0;
-	    for (int i = 0; i < direction.length; ++i)
-	        d += Math.pow(k * direction[i] - point[i], 2);
+		double numerator = 0, denominator = 0;
+		for (int i = 0; i < direction.length; ++i) {
+			numerator += direction[i] * point[i];
+			denominator += Math.pow(direction[i], 2);
+		}
+		
+		if(denominator <= 0)
+			return Double.MAX_VALUE;
+		
+		double k = numerator / denominator;
+		double d = 0;
+		for (int i = 0; i < direction.length; ++i)
+			d += Math.pow(k * direction[i] - point[i], 2);
 
-	    return Math.sqrt(d);
+		return Math.sqrt(d);
 	}
 	
 	private void associate(List<ReferencePoint> rps, final List<T> pop, final List<List<Integer> > fronts) {
@@ -200,26 +200,26 @@ public class NsgaIII<T extends Chromosome<T> >
 
 	private static double[] guassianElimination(List<Double>[] A, final double[] b)
 	{
-	    final int N = A.length;
-	    for (int i = 0; i < N; ++i)
-	        A[i].add(b[i]);
+		final int N = A.length;
+		for (int i = 0; i < N; ++i)
+			A[i].add(b[i]);
 
-	    for (int base = 0; base < N - 1; ++base) {
-	        for (int target = base + 1; target < N; ++target) {
-	            double ratio = A[target].get(base) / A[base].get(base);
-	            for (int term = 0; term < A[base].size(); ++term)
-	                A[target].set(term, A[target].get(term) - A[base].get(term) * ratio);
-	        }
-	    }
+		for (int base = 0; base < N - 1; ++base) {
+			for (int target = base + 1; target < N; ++target) {
+				double ratio = A[target].get(base) / A[base].get(base);
+				for (int term = 0; term < A[base].size(); ++term)
+					A[target].set(term, A[target].get(term) - A[base].get(term) * ratio);
+			}
+		}
 
-	    double[] x = new double[N];
-	    for (int i = N - 1; i >= 0; --i) {
-	        for (int known = i + 1; known < N; ++known)
-	            A[i].set(N, A[i].get(N) - A[i].get(known) * x[known]);
+		double[] x = new double[N];
+		for (int i = N - 1; i >= 0; --i) {
+			for (int known = i + 1; known < N; ++known)
+				A[i].set(N, A[i].get(N) - A[i].get(known) * x[known]);
 
-	        x[i] = A[i].get(N) / A[i].get(i);
-	    }
-	    return x;
+			x[i] = A[i].get(N) / A[i].get(i);
+		}
+		return x;
 	}
 	
 	// ----------------------------------------------------------------------
@@ -512,16 +512,16 @@ public class NsgaIII<T extends Chromosome<T> >
 	
 	protected List<T> replacement(List<T> population)
 	{
-		List<ReferencePoint> rps = new ArrayList<>();			
-		ReferencePoint.generateReferencePoints(rps, _prototype.getObjectives().length, _objDivision);			
+		List<ReferencePoint> rps = new ArrayList<>();
+		ReferencePoint.generateReferencePoints(rps, _prototype.getObjectives().length, _objDivision);
 		return selection(population, rps);
 	}
 	
 	// Starts and executes algorithm
 	public void run(int maxRepeat, double minFitness)
-    {
+	{
 		if (_prototype == null)
-			return;		
+			return;
 		
 		List<T>[] pop = new ArrayList[2];
 		pop[0] = new ArrayList<>();
@@ -534,7 +534,7 @@ public class NsgaIII<T extends Chromosome<T> >
 
 		int cur = 0, next = 1;
 		for (; ;)
-		{				
+		{
 			T best = getResult();
 			if(currentGeneration > 0) {
 				String status = String.format("\rFitness: %f\t Generation: %d", best.getFitness(), currentGeneration);
@@ -552,12 +552,12 @@ public class NsgaIII<T extends Chromosome<T> >
 					bestNotEnhance = 0;
 				}
 
-				if (bestNotEnhance > (maxRepeat / 50))		
+				if (bestNotEnhance > (maxRepeat / 50))
 					reform();
 			}
 			
 			/******************* crossover *****************/
-			List<T> offspring = crossing(pop[cur]);			
+			List<T> offspring = crossing(pop[cur]);
 			
 			/******************* mutation *****************/
 			for(T child : offspring)
