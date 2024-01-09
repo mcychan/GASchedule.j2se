@@ -60,7 +60,7 @@ The fitness values are represented by single-precision floating point numbers (f
 A crossover operation combines data in the hash maps of two parents, and then it creates a vector of slots according to the content of the new hash map. A crossover 'splits' hash maps of both parents in parts of random size. The number of parts is defined by the number of crossover points (plus one) in the chromosome's parameters. Then, it alternately copies parts form parents to the new chromosome, and forms a new list of slots.
 
 # Mutation
-A mutation operation is very simple. It just takes a class randomly and moves it to another randomly chosen slot. The nmber of classes which are going to be moved in a single operation is defined by the mutation size in the chromosome's parameters.
+A mutation operation is very simple. It just takes a class randomly and moves it to another randomly chosen slot. The number of classes which are going to be moved in a single operation is defined by the mutation size in the chromosome's parameters.
 
 # Algorithm
 The genetic algorithm is fairly simple. For each generation, it performs two basic operations:
@@ -114,7 +114,7 @@ If you are using Java, you would call GASchedule as follows:
       targetFile = new File(new File(ConsoleApp.class.getResource("/").toURI()).getParentFile() + FILE_NAME);
     configuration.parseFile(targetFile.getAbsolutePath());
 
-    Ngra<Schedule> alg = new Ngra<>(new Schedule(configuration), 2, 2, 80, 3);
+    Cso<Schedule> alg = new Cso<>(new Schedule(configuration), 2, 2, 80, 3);
     alg.run(9999, 0.999);
     String htmlResult = HtmlOutput.getResult(alg.getResult());
 ```
