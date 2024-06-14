@@ -3,63 +3,43 @@ package hk.edu.gaSchedule.algorithm;
  * X. -S. Yang and Suash Deb, "Cuckoo Search via Lévy flights,"
  * 2009 World Congress on Nature & Biologically Inspired Computing (NaBIC), Coimbatore, India,
  * 2009, pp. 210-214, doi: 10.1109/NABIC.2009.5393690.
- * Copyright (c) 2023 Miller Cy Chan
+ * Copyright (c) 2023 - 2024 Miller Cy Chan
  */
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import hk.edu.gaSchedule.model.Chromosome;
 import hk.edu.gaSchedule.model.Configuration;
 
 public class Cso<T extends Chromosome<T> > extends NsgaIII<T> {
 	private int _max_iterations = 5000;
-	
-	private int _chromlen;
-	
-	private double _pa, _beta, _σu, _σv;
 
-	private float[] _gBestScore = null;
+	private int _chromlen;
+
+	private double _pa;
+
+	private float[] _gBest = null;
+
 	private float[][] _current_position = null;
-	
-	private static Random _random = new Random(System.currentTimeMillis());
+
+	private LévyFlights<T> _lf;
 
 	// Initializes Cso
 	public Cso(T prototype, int numberOfCrossoverPoints, int mutationSize, float crossoverProbability, float mutationProbability)
 	{
-		super(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability);		
+		super(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability);
+
+		// there should be at least 5 chromosomes in population
+		if (_populationSize < 5)
+			_populationSize = 5;
+
 		_pa = .25;
-		_beta = 1.5;
-		
-		double num = gamma(1 + _beta) * Math.sin(Math.PI * _beta / 2);
-		double den = gamma((1 + _beta) / 2) * _beta * Math.pow(2, (_beta - 1) / 2);
-		_σu = Math.pow(num / den, 1 / _beta);
-		_σv = 1;
 	}
 
-	private static double gamma(double z)
-	{
-		if (z < 0.5)
-			return Math.PI / Math.sin(Math.PI * z) / gamma(1.0 - z);
-
-		// Lanczos approximation g=5, n=7
-		double[] coef = new double[] { 1.000000000190015, 76.18009172947146, -86.50532032941677,
-		24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5 };
-
-		double zz = z - 1.0;
-		double b = zz + 5.5; // g + 0.5
-		double sum = coef[0];
-		for (int i = 1; i < coef.length; ++i)
-			sum += coef[i] / (zz + i);
-
-		double LogSqrtTwoPi = 0.91893853320467274178;
-		return Math.exp(LogSqrtTwoPi + Math.log(sum) - b + Math.log(b) * (zz + 0.5));
-	}
-	
 	protected void initialize(List<T> population)
 	{
-		for (int i = 0; i < _populationSize; ++i) {			
+		for (int i = 0; i < _populationSize; ++i) {
 			List<Float> positions = new ArrayList<>();
 			
 			// initialize new population with chromosomes randomly built using prototype
@@ -68,55 +48,30 @@ public class Cso<T extends Chromosome<T> > extends NsgaIII<T> {
 			if(i < 1) {
 				_chromlen = positions.size();
 				_current_position = new float[_populationSize][_chromlen];
+				_lf = new LévyFlights<T>(_chromlen, null);
 			}
-
 		}
 	}
-	
-	private float[] optimum(float[] localVal, T chromosome)
+
+	@Override
+	protected void reform()
 	{
-		T localBest = _prototype.makeEmptyFromPrototype(null);
-		localBest.updatePositions(localVal);
-		
-		if(localBest.dominates(chromosome)) {
-			chromosome.updatePositions(localVal);
-			return localVal;
-		}
-		
-		float[] positions = new float[_chromlen];
-		chromosome.extractPositions(positions);
-		return positions;
+		Configuration.seed();
+		if(_crossoverProbability < 95)
+			_crossoverProbability += 1.0f;
+		else if(_pa < .5)
+			_pa += .01;
 	}
 
-	private void updatePosition1(List<T> population)
-	{
-		float[][] current_position = _current_position.clone();		
-		for(int i = 0; i < _populationSize; ++i) {
-			double u = _random.nextGaussian() * _σu;
-			double v = _random.nextGaussian() * _σv;
-			double S = u / Math.pow(Math.abs(v), 1 / _beta);
-			
-			if(_gBestScore == null) {
-				_gBestScore = new float[_chromlen];
-				population.get(i).extractPositions(_gBestScore);
-			}
-			else
-				_gBestScore = optimum(_gBestScore, population.get(i));
-
-			for(int j = 0; j < _chromlen; ++j)
-				_current_position[i][j] += (float) (_random.nextGaussian() * 0.01 * S * (current_position[i][j] - _gBestScore[j]));
-
-			_current_position[i] = optimum(_current_position[i], population.get(i));
-		}
-	}
-	
-	private void updatePosition2(List<T> population)
+	private void updateVelocities(List<T> population)
 	{
 		float[][] current_position = _current_position.clone();
 		for (int i = 0; i < _populationSize; ++i) {
+			boolean changed = false;
 			for(int j = 0; j < _chromlen; ++j) {
 				double r = Configuration.random();
 				if(r < _pa) {
+					changed = true;
 					int d1 = Configuration.rand(5);
 					int d2;
 					do {
@@ -125,15 +80,16 @@ public class Cso<T extends Chromosome<T> > extends NsgaIII<T> {
 					_current_position[i][j] += (float) (Configuration.random() * (current_position[d1][j] - current_position[d2][j]));
 				}
 			}
-			_current_position[i] = optimum(_current_position[i], population.get(i));
+			if(changed)
+				_current_position[i] = _lf.optimum(_current_position[i], population.get(i));
 		}
 	}
-	
+
 	@Override
 	protected List<T> replacement(List<T> population)
 	{
-		updatePosition1(population);
-		updatePosition2(population);
+		_gBest = _lf.updateVelocities(population, _populationSize, _current_position, _gBest);
+		updateVelocities(population);
 		
 		for (int i = 0; i < _populationSize; ++i) {
 			T chromosome = _prototype.makeEmptyFromPrototype(null);
@@ -143,7 +99,7 @@ public class Cso<T extends Chromosome<T> > extends NsgaIII<T> {
 
 		return super.replacement(population);
 	}
-	
+
 	// Starts and executes algorithm
 	public void run(int maxRepeat, double minFitness)
 	{
@@ -179,30 +135,30 @@ public class Cso<T extends Chromosome<T> > extends NsgaIII<T> {
 					bestNotEnhance = 0;
 				}
 
-				if (bestNotEnhance > (maxRepeat / 100))		
+				if (bestNotEnhance > (maxRepeat / 100))
 					reform();
-			}			
-			
+			}
+
 			/******************* crossover *****************/
-			List<T> offspring = crossing(pop[cur]);			
-			
+			List<T> offspring = crossing(pop[cur]);
+
 			/******************* mutation *****************/
 			for(T child : offspring)
 				child.mutation(_mutationSize, _mutationProbability);
-			
+
 			pop[cur].addAll(offspring);
 			
 			/******************* replacement *****************/	
 			pop[next] = replacement(pop[cur]);
 			_best = pop[next].get(0).dominates( pop[cur].get(0)) ? pop[next].get(0) : pop[cur].get(0);
-			
+
 			int temp = cur;
 			cur = next;
 			next = temp;
 			++currentGeneration;
 		}
 	}
-	
+
 	@Override
 	public String toString()
 	{
