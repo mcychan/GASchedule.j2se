@@ -136,7 +136,7 @@ public class Dlba<T extends Chromosome<T> > extends NsgaIII<T> {
 				
 				if (globalBest.dominates(localBest)) {
 					_position[i] = positionTemp[i];
-					_rate[i] *= Math.pow(_currentGeneration / n, 3);
+					_rate[i] *= (float) Math.pow(_currentGeneration / n, 3);
 					_loudness[i] *= _alpha;
 				}
 			}
