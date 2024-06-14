@@ -28,7 +28,7 @@ public class ConsoleApp
 	        
 	        Cso<Schedule> alg = new Cso<>(new Schedule(configuration), 2, 2, 80, 3);
 	        // Amga2<Schedule> alg = new Amga2<>(new Schedule(configuration), 0.35f, 2, 80, 3);
-	        System.out.println(String.format("GaSchedule Version %s . Making a Class Schedule Using %s.", "1.2.5", alg.toString()));
+	        System.out.println(String.format("GaSchedule Version %s . Making a Class Schedule Using %s.", "1.2.6", alg.toString()));
 	        System.out.println("Copyright (C) 2022 - 2024 Miller Cy Chan.");
 	        alg.run(9999, 0.999);
 	        
