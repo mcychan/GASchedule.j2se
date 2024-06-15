@@ -58,26 +58,32 @@ final class LévyFlights<T extends Chromosome<T> > {
 		return positions;
 	}
 	
-	float[] updateVelocities(List<T> population, int populationSize, float[][] currentPosition, float[] gBest)
+	float[] updatePosition(T chromosome, float[][] currentPosition, int i, float[] gBest)
 	{
-		float[][] current_position = currentPosition.clone();
-		for(int i = 0; i < populationSize; ++i) {
-			double u = _random.nextGaussian() * _σu;
-			double v = _random.nextGaussian() * _σv;
-			double S = u / Math.pow(Math.abs(v), 1 / _beta);
-			
-			if(gBest == null) {
-				gBest = new float[_chromlen];
-				population.get(i).extractPositions(gBest);
-			}
-			else
-				gBest = optimum(gBest, population.get(i));
-
-			for(int j = 0; j < _chromlen; ++j)
-				currentPosition[i][j] += (float) (_random.nextGaussian() * 0.01 * S * (current_position[i][j] - gBest[j]));
-
-			currentPosition[i] = optimum(currentPosition[i], population.get(i));
+		float[] curPos = currentPosition[i].clone();
+		double u = _random.nextGaussian() * _σu;
+		double v = _random.nextGaussian() * _σv;
+		double S = u / Math.pow(Math.abs(v), 1 / _beta);
+		
+		if(gBest == null) {
+			gBest = new float[_chromlen];
+			chromosome.extractPositions(gBest);
 		}
+		else
+			gBest = optimum(gBest, chromosome);
+
+		for(int j = 0; j < _chromlen; ++j)
+			currentPosition[i][j] += (float) (_random.nextGaussian() * 0.01 * S * (curPos[j] - gBest[j]));
+
+		currentPosition[i] = optimum(currentPosition[i], chromosome);
+		return gBest;
+	}
+	
+	float[] updatePositions(List<T> population, int populationSize, float[][] currentPosition, float[] gBest)
+	{
+		for(int i = 0; i < populationSize; ++i)
+			gBest = updatePosition(population.get(i), currentPosition, i, gBest);
+
 		return gBest;
 	}
 }

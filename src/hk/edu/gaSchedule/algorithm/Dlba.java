@@ -20,12 +20,11 @@ public class Dlba<T extends Chromosome<T> > extends NsgaIII<T> {
 
 	private double _alpha, _pa;
 
-	private float[] _frequency, _rate;
-	private double[] _loudness;
+	private float[] _f1, _f2;
+	private double[] _loudness, _rate;
 
 	private float[] _gBest = null;
 	private float[][] _position = null;
-	private float[][] _velocity = null;
 
 	private List<Integer> _maxValues;
 	private LévyFlights<T> _lf;	
@@ -52,11 +51,11 @@ public class Dlba<T extends Chromosome<T> > extends NsgaIII<T> {
 			
 			if(i < 1) {
 				_chromlen = positions.size();
-				_frequency = new float[_chromlen];
-				_rate = new float[_populationSize];
+				_f1 = new float[_chromlen];
+				_f2 = new float[_chromlen];
+				_rate = new double[_populationSize];
 				_loudness = new double[_populationSize];
 				_position = new float[_populationSize][_chromlen];
-				_velocity = new float[_populationSize][_chromlen];
 				_lf = new LévyFlights<T>(_chromlen, null);
 			}
 			
@@ -75,68 +74,61 @@ public class Dlba<T extends Chromosome<T> > extends NsgaIII<T> {
 			_pa += .01;
 	}
 	
-	private float getMean(float[] array)
-	{
-		float sum = 0f;
-		for(float value : array)
-			sum += value;
-		return sum / array.length;
-	}
-	
-	private void updateVelocities(List<T> population)
+	private void updatePositions(List<T> population)
 	{
 		double mean = Arrays.stream(_loudness).average().orElse(0.0);
-
-		T globalBest = _prototype.makeEmptyFromPrototype(null);
-		globalBest.updatePositions(_gBest);
 		T localBest = _prototype.makeNewFromPrototype(null);
-	
+		if(_gBest == null)
+			_gBest = _position[0];
+
 		for (int i = 0; i < _populationSize; ++i) {
 			float beta = (float) Configuration.random();
 			double rand = Configuration.random();
-			double n = Configuration.rand(-1.0, 1.0);
+			double 𝛽1 = Configuration.rand(-1.0, 1.0);
+			double 𝛽2 = Configuration.rand(-1.0, 1.0);
 
-			int dim = _velocity[i].length;
+			int r1 = Configuration.rand(_populationSize);
+			int r2 = Configuration.rand(_populationSize);
+			while(r1 == r2)
+				r2 = Configuration.rand(_populationSize);
+			int r3 = Configuration.rand(_populationSize);
+			int r4 = Configuration.rand(_populationSize);
+			while(r3 == r4)
+				r4 = Configuration.rand(_populationSize);
+
+			int dim = _position[i].length;
 			for(int j = 0; j < dim; ++j) {
-				_frequency[j] = ((_maxValues.get(j) - _minValue) * _currentGeneration / (float) n + _minValue) * beta;
-				_velocity[i][j] += (_position[i][j] - _gBest[j]) * _frequency[j];
+				_f1[j] = ((_minValue - _maxValues.get(j)) * _currentGeneration / (float) 𝛽1 + _maxValues.get(j)) * beta;
+				_f2[j] = ((_maxValues.get(j) - _minValue) * _currentGeneration / (float) 𝛽2 + _minValue) * beta;
+				_position[i][j] = _gBest[j] + _f1[j] * (_position[r1][j] - _position[r2][j]) + _f2[j] * (_position[r3][j] - _position[r3][j]);
 				
 				if (rand > _rate[i]) {
-					_position[i][j] += _velocity[i][j];
-					if(_position[i][j] > _maxValues.get(j)) {
-						_position[i][j] = _maxValues.get(j);
-						_velocity[i][j] = _minValue;
-					}
-					else if(_position[i][j] < _minValue)
-						_position[i][j] = _velocity[i][j] = _minValue;
+					double 𝜀 = Configuration.rand(-1.0, 1.0);
+					_position[i][j] += (float) (_gBest[j] + 𝜀 * mean);
 				}
 			}
-			
+
+			_gBest = _lf.updatePosition(population.get(i), _position, i, _gBest);
+
 			T localTemp = _prototype.makeEmptyFromPrototype(null);
 			localTemp.updatePositions(_position[i]);
 			if (localTemp.dominates(localBest))
 				localBest = localTemp;
 		}
 
+		T globalBest = _prototype.makeEmptyFromPrototype(null);
+		globalBest.updatePositions(_gBest);
+		mean = Arrays.stream(_rate).average().orElse(0.0);
 		for (int i = 0; i < _populationSize; ++i) {
-			float[][] positionTemp = _position.clone();
 			double rand = Configuration.random();
 			if (rand < _loudness[i]) {
-				double n = Configuration.rand(-1.0, 1.0);
-				int dim = _velocity[i].length;
-				for(int j = 0; j < dim; ++j) {
-					positionTemp[i][j] = (float) (_gBest[j] + n * mean);
-					if(positionTemp[i][j] > _maxValues.get(j)) {
-						positionTemp[i][j] = _maxValues.get(j);
-						_velocity[i][j] = _minValue;
-					}
-					else if(positionTemp[i][j] < _minValue)
-						positionTemp[i][j] = _velocity[i][j] = _minValue;
-				}
+				double 𝜂 = Configuration.rand(-1.0, 1.0);
+				int dim = _position[i].length;
+				for(int j = 0; j < dim; ++j)
+					_position[i][j] = (float) (_gBest[j] + 𝜂 * mean);
 				
 				if (globalBest.dominates(localBest)) {
-					_position[i] = positionTemp[i];
-					_rate[i] *= (float) Math.pow(_currentGeneration / n, 3);
+					_rate[i] *= (float) Math.pow(_currentGeneration / 𝜂, 3);
 					_loudness[i] *= _alpha;
 				}
 			}
@@ -148,8 +140,7 @@ public class Dlba<T extends Chromosome<T> > extends NsgaIII<T> {
 	@Override
 	protected List<T> replacement(List<T> population)
 	{
-		_gBest = _lf.updateVelocities(population, _populationSize, _position, _gBest);
-		updateVelocities(population);
+		updatePositions(population);
 		
 		for (int i = 0; i < _populationSize; ++i) {
 			T chromosome = _prototype.makeEmptyFromPrototype(null);

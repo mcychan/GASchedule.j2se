@@ -1,10 +1,9 @@
 package hk.edu.gaSchedule.algorithm;
 /*
- * X. -S. Yang and Suash Deb, "Cuckoo Search via Lévy flights,"
- * 2009 World Congress on Nature & Biologically Inspired Computing (NaBIC), Coimbatore, India,
- * 2009, pp. 210-214, doi: 10.1109/NABIC.2009.5393690.
- * Copyright (c) 2023 - 2024 Miller Cy Chan
- */
+* Yang, X. S. 2012. Flower pollination algorithm for global optimization. Unconventional
+* Computation and Natural Computation 7445: 240–49.
+* Copyright (c) 2024 Miller Cy Chan
+*/
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +11,7 @@ import java.util.List;
 import hk.edu.gaSchedule.model.Chromosome;
 import hk.edu.gaSchedule.model.Configuration;
 
-public class Cso<T extends Chromosome<T> > extends NsgaIII<T> {
+public class Fpa<T extends Chromosome<T> > extends NsgaIII<T> {
 	private int _max_iterations = 5000;
 
 	private int _chromlen;
@@ -25,14 +24,10 @@ public class Cso<T extends Chromosome<T> > extends NsgaIII<T> {
 
 	private LévyFlights<T> _lf;
 
-	// Initializes Cso
-	public Cso(T prototype, int numberOfCrossoverPoints, int mutationSize, float crossoverProbability, float mutationProbability)
+	// Initializes Flower Pollination Algorithm
+	public Fpa(T prototype, int numberOfCrossoverPoints, int mutationSize, float crossoverProbability, float mutationProbability)
 	{
 		super(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability);
-
-		// there should be at least 5 chromosomes in population
-		if (_populationSize < 5)
-			_populationSize = 5;
 
 		_pa = .25;
 	}
@@ -63,33 +58,32 @@ public class Cso<T extends Chromosome<T> > extends NsgaIII<T> {
 			_pa += .01;
 	}
 
-	private void updateVelocities(List<T> population)
+	private void updatePositions(List<T> population)
 	{
 		float[][] current_position = _current_position.clone();
 		for (int i = 0; i < _populationSize; ++i) {
-			boolean changed = false;
-			for(int j = 0; j < _chromlen; ++j) {
-				double r = Configuration.random();
-				if(r < _pa) {
-					changed = true;
-					int d1 = Configuration.rand(5);
-					int d2;
-					do {
-						d2 = Configuration.rand(5);
-					} while(d1 == d2);
+			double r = Configuration.random();
+			if(r < _pa)
+				_gBest = _lf.updatePosition(population.get(i), _current_position, i, _gBest);
+			else {
+				int d1 = Configuration.rand(_populationSize);
+				int d2;
+				do {
+					d2 = Configuration.rand(_populationSize);
+				} while(d1 == d2);
+				
+				for(int j = 0; j < _chromlen; ++j)
 					_current_position[i][j] += (float) (Configuration.random() * (current_position[d1][j] - current_position[d2][j]));
-				}
-			}
-			if(changed)
+			
 				_current_position[i] = _lf.optimum(_current_position[i], population.get(i));
+			}
 		}
 	}
 
 	@Override
 	protected List<T> replacement(List<T> population)
 	{
-		_gBest = _lf.updatePositions(population, _populationSize, _current_position, _gBest);
-		updateVelocities(population);
+		updatePositions(population);
 		
 		for (int i = 0; i < _populationSize; ++i) {
 			T chromosome = _prototype.makeEmptyFromPrototype(null);
@@ -162,6 +156,6 @@ public class Cso<T extends Chromosome<T> > extends NsgaIII<T> {
 	@Override
 	public String toString()
 	{
-		return "Cuckoo Search Optimization (CSO)";
+		return "Flower Pollination Algorithm (FPA)";
 	}
 }
