@@ -20,7 +20,6 @@ public class Dlba<T extends Chromosome<T> > extends NsgaIII<T> {
 
 	private double _alpha, _pa;
 
-	private float[] _f1, _f2;
 	private double[] _loudness, _rate;
 
 	private float[] _gBest = null;
@@ -51,8 +50,6 @@ public class Dlba<T extends Chromosome<T> > extends NsgaIII<T> {
 			
 			if(i < 1) {
 				_chromlen = positions.size();
-				_f1 = new float[_chromlen];
-				_f2 = new float[_chromlen];
 				_rate = new double[_populationSize];
 				_loudness = new double[_populationSize];
 				_position = new float[_populationSize][_chromlen];
@@ -98,9 +95,9 @@ public class Dlba<T extends Chromosome<T> > extends NsgaIII<T> {
 
 			int dim = _position[i].length;
 			for(int j = 0; j < dim; ++j) {
-				_f1[j] = ((_minValue - _maxValues.get(j)) * _currentGeneration / (float) 𝛽1 + _maxValues.get(j)) * beta;
-				_f2[j] = ((_maxValues.get(j) - _minValue) * _currentGeneration / (float) 𝛽2 + _minValue) * beta;
-				_position[i][j] = _gBest[j] + _f1[j] * (_position[r1][j] - _position[r2][j]) + _f2[j] * (_position[r3][j] - _position[r3][j]);
+				float f1 = ((_minValue - _maxValues.get(j)) * _currentGeneration / (float) 𝛽1 + _maxValues.get(j)) * beta;
+				float f2 = ((_maxValues.get(j) - _minValue) * _currentGeneration / (float) 𝛽2 + _minValue) * beta;
+				_position[i][j] = _gBest[j] + f1 * (_position[r1][j] - _position[r2][j]) + f2 * (_position[r3][j] - _position[r3][j]);
 				
 				if (rand > _rate[i]) {
 					double 𝜀 = Configuration.rand(-1.0, 1.0);
