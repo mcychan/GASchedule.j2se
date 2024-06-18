@@ -74,9 +74,10 @@ public class Dlba<T extends Chromosome<T> > extends NsgaIII<T> {
 	private void updatePositions(List<T> population)
 	{
 		double mean = Arrays.stream(_loudness).average().orElse(0.0);
-		T localBest = _prototype.makeNewFromPrototype(null);
 		if(_gBest == null)
 			_gBest = _position[0];
+		T prevBest = _prototype.makeEmptyFromPrototype(null);
+		prevBest.updatePositions(_gBest);
 
 		for (int i = 0; i < _populationSize; ++i) {
 			float beta = (float) Configuration.random();
@@ -106,11 +107,6 @@ public class Dlba<T extends Chromosome<T> > extends NsgaIII<T> {
 			}
 
 			_gBest = _lf.updatePosition(population.get(i), _position, i, _gBest);
-
-			T localTemp = _prototype.makeEmptyFromPrototype(null);
-			localTemp.updatePositions(_position[i]);
-			if (localTemp.dominates(localBest))
-				localBest = localTemp;
 		}
 
 		T globalBest = _prototype.makeEmptyFromPrototype(null);
@@ -124,7 +120,7 @@ public class Dlba<T extends Chromosome<T> > extends NsgaIII<T> {
 				for(int j = 0; j < dim; ++j)
 					_position[i][j] = (float) (_gBest[j] + 𝜂 * mean);
 				
-				if (globalBest.dominates(localBest)) {
+				if (prevBest.dominates(globalBest)) {
 					_rate[i] *= (float) Math.pow(_currentGeneration / 𝜂, 3);
 					_loudness[i] *= _alpha;
 				}
