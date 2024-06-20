@@ -32,6 +32,10 @@ public class Dlba<T extends Chromosome<T> > extends NsgaIII<T> {
 	public Dlba(T prototype, int numberOfCrossoverPoints, int mutationSize, float crossoverProbability, float mutationProbability)
 	{
 		super(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability);
+		
+		// there should be at least 5 chromosomes in population
+		if (_populationSize < 5)
+			_populationSize = 5;
 
 		_alpha = 0.9;
 		_pa = .25;
